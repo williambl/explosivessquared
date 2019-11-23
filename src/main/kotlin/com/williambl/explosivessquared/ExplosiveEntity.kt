@@ -6,11 +6,12 @@ import net.minecraft.network.IPacket
 import net.minecraft.network.datasync.DataParameter
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.network.play.server.SSpawnObjectPacket
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.world.World
+import net.minecraftforge.fml.network.NetworkHooks
 import kotlin.math.cos
 import kotlin.math.sin
+
 
 open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World) : Entity(type, worldIn) {
 
@@ -108,7 +109,7 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
     }
 
     override fun createSpawnPacket(): IPacket<*> {
-        return SSpawnObjectPacket(this)
+        return NetworkHooks.getEntitySpawningPacket(this)
     }
 
 }
