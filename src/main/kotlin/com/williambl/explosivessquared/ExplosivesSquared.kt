@@ -6,9 +6,9 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.material.Material
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
-import net.minecraft.util.math.BlockPos
 import net.minecraft.world.Explosion
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -40,14 +40,22 @@ object ExplosivesSquared {
                     .setExplodeFunction { it.world.setBlockState(it.position, Blocks.CAKE.defaultState) },
             ExplosiveBuilder("vegetation_destroyer")
                     .setExplodeFunction {
-                        BlockPos.getAllInBox(it.position.subtract(BlockPos(8, 8, 8)), it.position.add(BlockPos(8, 8, 8)))
-                                .filter { pos -> pos.distanceSq(it.position) < 64 }
+                        it.position.getAllInSphere(8)
                                 .filter { pos -> it.world.getBlockState(pos).isVegetation() }
                                 .forEach { pos ->
                                     if (it.world.getBlockState(pos).isGrass())
                                         it.world.setBlockState(pos, Blocks.DIRT.defaultState)
                                     else
                                         it.world.destroyBlock(pos, false)
+                                }
+                    },
+            ExplosiveBuilder("gravitationaliser")
+                    .setExplodeFunction {
+                        it.position.getAllInSphere(8)
+                                .forEach { pos ->
+                                    val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
+                                    fallingEntity.setHurtEntities(true)
+                                    it.world.addEntity(fallingEntity)
                                 }
                     }
     )

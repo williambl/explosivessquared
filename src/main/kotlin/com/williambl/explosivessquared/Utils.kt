@@ -5,7 +5,10 @@ import net.minecraft.block.GrassBlock
 import net.minecraft.block.IGrowable
 import net.minecraft.block.VineBlock
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.IPlantable
+import java.util.stream.Stream
+import kotlin.math.pow
 
 fun BlockState.isVegetation(): Boolean {
     if (this.block.tags.contains(ResourceLocation("minecraft:leaves")))
@@ -21,4 +24,9 @@ fun BlockState.isVegetation(): Boolean {
 
 fun BlockState.isGrass(): Boolean {
     return this.block is GrassBlock
+}
+
+fun BlockPos.getAllInSphere(radius: Int): Stream<BlockPos> {
+    return BlockPos.getAllInBox(this.subtract(BlockPos(radius, radius, radius)), this.add(BlockPos(radius, radius, radius)))
+            .filter { pos -> pos.distanceSq(this) < radius.toFloat().pow(2) }
 }
