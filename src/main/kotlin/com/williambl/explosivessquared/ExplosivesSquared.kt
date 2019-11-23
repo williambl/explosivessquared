@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.Explosion
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -36,7 +37,19 @@ object ExplosivesSquared {
             ExplosiveBuilder("cake_tnt")
                     .setBlockProperties(Block.Properties.create(Material.CAKE))
                     .setItemProperties(Item.Properties().group(ItemGroup.FOOD))
-                    .setExplodeFunction { it.world.setBlockState(it.position, Blocks.CAKE.defaultState) }
+                    .setExplodeFunction { it.world.setBlockState(it.position, Blocks.CAKE.defaultState) },
+            ExplosiveBuilder("vegetation_destroyer")
+                    .setExplodeFunction {
+                        BlockPos.getAllInBox(it.position.subtract(BlockPos(8, 8, 8)), it.position.add(BlockPos(8, 8, 8)))
+                                .filter { pos -> pos.distanceSq(it.position) < 64 }
+                                .filter { pos -> it.world.getBlockState(pos).isVegetation() }
+                                .forEach { pos ->
+                                    if (it.world.getBlockState(pos).isGrass())
+                                        it.world.setBlockState(pos, Blocks.DIRT.defaultState)
+                                    else
+                                        it.world.destroyBlock(pos, false)
+                                }
+                    }
     )
 
     @SubscribeEvent
