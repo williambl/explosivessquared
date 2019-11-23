@@ -2,14 +2,11 @@ package com.williambl.explosivessquared
 
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
-import net.minecraft.block.Blocks
 import net.minecraft.block.material.Material
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
-import net.minecraft.world.Explosion
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
@@ -30,34 +27,18 @@ object ExplosivesSquared {
     val blocksToEntityTypes: MutableMap<ExplosiveBlock, EntityType<out ExplosiveEntity>> = mutableMapOf()
 
     var explosives: List<ExplosiveBuilder> = listOf(
-            ExplosiveBuilder("big_tnt").setExplodeFunction { it.world.createExplosion(it, it.posX, it.posY, it.posZ, 15f, Explosion.Mode.DESTROY) },
+            ExplosiveBuilder("big_tnt").setExplodeFunction(regularExplosion(15f)),
             ExplosiveBuilder("slow_tnt")
                     .setFuseLength(160)
-                    .setExplodeFunction { it.world.createExplosion(it, it.posX, it.posY, it.posZ, 4f, Explosion.Mode.DESTROY) },
+                    .setExplodeFunction(regularExplosion(15f)),
             ExplosiveBuilder("cake_tnt")
                     .setBlockProperties(Block.Properties.create(Material.CAKE))
                     .setItemProperties(Item.Properties().group(ItemGroup.FOOD))
-                    .setExplodeFunction { it.world.setBlockState(it.position, Blocks.CAKE.defaultState) },
+                    .setExplodeFunction(createCake),
             ExplosiveBuilder("vegetation_destroyer")
-                    .setExplodeFunction {
-                        it.position.getAllInSphere(8)
-                                .filter { pos -> it.world.getBlockState(pos).isVegetation() }
-                                .forEach { pos ->
-                                    if (it.world.getBlockState(pos).isGrass())
-                                        it.world.setBlockState(pos, Blocks.DIRT.defaultState)
-                                    else
-                                        it.world.destroyBlock(pos, false)
-                                }
-                    },
+                    .setExplodeFunction(destroyVegetation),
             ExplosiveBuilder("gravitationaliser")
-                    .setExplodeFunction {
-                        it.position.getAllInSphere(8)
-                                .forEach { pos ->
-                                    val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
-                                    fallingEntity.setHurtEntities(true)
-                                    it.world.addEntity(fallingEntity)
-                                }
-                    }
+                    .setExplodeFunction(makeBlocksFall)
     )
 
     @SubscribeEvent
