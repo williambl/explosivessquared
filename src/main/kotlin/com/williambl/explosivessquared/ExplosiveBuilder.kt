@@ -27,12 +27,14 @@ class ExplosiveBuilder(val name: String) {
         return this
     }
 
-    fun setBlockProperties(properties: Block.Properties) {
+    fun setBlockProperties(properties: Block.Properties): ExplosiveBuilder {
         this.blockProperties = properties
+        return this
     }
 
-    fun setItemProperties(properties: Item.Properties) {
+    fun setItemProperties(properties: Item.Properties): ExplosiveBuilder {
         this.itemProperties = properties
+        return this
     }
 
     fun createBlock(): ExplosiveBlock {
