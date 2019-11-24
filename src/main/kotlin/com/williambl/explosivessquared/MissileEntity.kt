@@ -1,6 +1,8 @@
 package com.williambl.explosivessquared
 
-import net.minecraft.entity.*
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.MoverType
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.IPacket
 import net.minecraft.network.datasync.DataParameter
@@ -29,7 +31,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
     constructor(type: EntityType<out MissileEntity>, worldIn: World, x: Double, y: Double, z: Double, igniter: LivingEntity?, target: Vec3d) : this(type, worldIn) {
         this.setPosition(x, y, z)
         this.motion = getMotionToReachTarget(target)
-        this.setFuse(80)
+        this.setFuse(40)
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
@@ -56,7 +58,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         }
 
         setFuse(getFuse() - 1)
-        if (this.getFuse() <= 0 && positionVec.distanceTo(target) < 5.0) {
+        if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
             this.remove()
             if (!this.world.isRemote) {
                 ExplosivesSquared.entityTypesToBlocks[ExplosivesSquared.missileEntityTypesToEntityTypes[type]]?.entityExplode?.invoke(this)
@@ -78,10 +80,6 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
         target = Vec3d(compound.getDouble("TargetX"), compound.getDouble("TargetY"), compound.getDouble("TargetZ"))
-    }
-
-    override fun getEyeHeight(poseIn: Pose, sizeIn: EntitySize): Float {
-        return 0.0f
     }
 
     override fun notifyDataManagerChange(key: DataParameter<*>) {
