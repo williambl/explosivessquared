@@ -38,7 +38,9 @@ object ExplosivesSquared {
             ExplosiveBuilder("vegetation_destroyer")
                     .setExplodeFunction(destroyVegetation),
             ExplosiveBuilder("gravitationaliser")
-                    .setExplodeFunction(makeBlocksFall)
+                    .setExplodeFunction(makeBlocksFall),
+            ExplosiveBuilder("tnt_rainer")
+                    .setExplodeFunction(rainTNT)
     )
 
     @SubscribeEvent
