@@ -89,3 +89,14 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                 }
     }
 }
+
+fun napalmExplosion(radius: Double): ExplosionFunction {
+    return {
+        it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
+        it.position.getAllInSphere(radius.roundToInt())
+                .filter { pos -> it.world.getBlockState(pos).isAir(it.world, pos) }
+                .forEach { pos ->
+                    it.world.setBlockState(pos, Blocks.FIRE.defaultState)
+                }
+    }
+}

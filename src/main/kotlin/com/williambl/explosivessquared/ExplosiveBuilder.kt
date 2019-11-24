@@ -14,9 +14,14 @@ class ExplosiveBuilder(val name: String) {
     private var fuse: Int = 80
     private var blockProperties = Block.Properties.create(Material.TNT)
     private var itemProperties = Item.Properties().group(ItemGroup.REDSTONE)
+    private var missileBlockProperties = Block.Properties.create(Material.TNT)
+    private var missileItemProperties = Item.Properties().group(ItemGroup.REDSTONE)
     private var boomStickProperties = Item.Properties().group(ItemGroup.TOOLS)
 
     private lateinit var block: ExplosiveBlock
+    private lateinit var missileBlock: MissileBlock
+    private lateinit var entityType: EntityType<out ExplosiveEntity>
+    private lateinit var missileEntityType: EntityType<out MissileEntity>
 
     fun setExplodeFunction(explodeFunction: (ExplosiveEntity) -> Unit): ExplosiveBuilder {
         this.entityExplosion = explodeFunction
@@ -49,12 +54,29 @@ class ExplosiveBuilder(val name: String) {
         return block
     }
 
+    fun createMissileBlock(): MissileBlock {
+        if (this::block.isInitialized) {
+            missileBlock = MissileBlock(block, missileBlockProperties)
+            missileBlock.setRegistryName(name + "_missile")
+            ExplosivesSquared.validMissileBlocks.add(missileBlock)
+            return missileBlock
+        } else throw UninitializedPropertyAccessException("Tried to create Missile Block before Block!")
+    }
+
     fun createItem(): BlockItem {
         if (this::block.isInitialized) {
             val item = BlockItem(block, itemProperties)
             item.setRegistryName(name)
             return item
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
+    }
+
+    fun createMissileItem(): BlockItem {
+        if (this::missileBlock.isInitialized) {
+            val item = BlockItem(missileBlock, missileItemProperties)
+            item.setRegistryName(name + "_missile")
+            return item
+        } else throw UninitializedPropertyAccessException("Tried to create Missile Item before Missile Block!")
     }
 
     fun createBoomStick(): BoomStickItem {
@@ -67,10 +89,21 @@ class ExplosiveBuilder(val name: String) {
 
     fun createEntityType(): EntityType<*>? {
         if (this::block.isInitialized) {
-            val type = EntityType.Builder.create(::ExplosiveEntity, EntityClassification.MISC).build(name).setRegistryName(name)
-            ExplosivesSquared.entityTypesToBlocks[type as EntityType<out ExplosiveEntity>] = block
-            ExplosivesSquared.blocksToEntityTypes[block] = type
-            return type
+            entityType = EntityType.Builder.create(::ExplosiveEntity, EntityClassification.MISC).build(name).setRegistryName(name) as EntityType<out ExplosiveEntity>
+            ExplosivesSquared.entityTypesToBlocks[entityType] = block
+            ExplosivesSquared.blocksToEntityTypes[block] = entityType
+            return entityType
         } else throw UninitializedPropertyAccessException("Tried to create EntityType before Block!")
+    }
+
+    fun createMissileEntityType(): EntityType<*>? {
+        if (this::missileBlock.isInitialized) {
+            if (this::entityType.isInitialized) {
+                missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).build(name + "_missile").setRegistryName(name + "_missile") as EntityType<out MissileEntity>
+                ExplosivesSquared.entityTypesToMissileEntityTypes[entityType] = missileEntityType
+                ExplosivesSquared.missileEntityTypesToEntityTypes[missileEntityType] = entityType
+                return missileEntityType
+            } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before EntityType!")
+        } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before Missile Block!")
     }
 }
