@@ -21,7 +21,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         private val HORIZONTAL_SPEED = EntityDataManager.createKey(MissileEntity::class.java, DataSerializers.FLOAT)
     }
 
-    private var horizontalSpeed = 20f
+    private var horizontalSpeed = 1f
 
     private val horizontalSpeedDataManager: Float
         get() = this.dataManager.get(HORIZONTAL_SPEED)
@@ -39,7 +39,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
 
     override fun registerData() {
         super.registerData()
-        this.dataManager.register(HORIZONTAL_SPEED, 20f)
+        this.dataManager.register(HORIZONTAL_SPEED, 1f)
     }
 
     override fun tick() {
@@ -51,8 +51,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         }
 
         this.move(MoverType.SELF, this.motion)
-        this.motion = this.motion.scale(0.98)
-        if (this.onGround) {
+        if (this.onGround && this.getFuse() < 80) {
             this.motion = this.motion.mul(0.7, -0.5, 0.7)
         }
 
@@ -97,7 +96,9 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
     }
 
     fun getHorizontalMotion(target: Vec3d): Vec3d {
-        return target.subtract(positionVec).mul(getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble())
+        val horizontalPosition = positionVec.mul(1.0, 0.0, 1.0)
+        val horizontalTarget = target.mul(1.0, 0.0, 1.0)
+        return horizontalTarget.subtract(horizontalPosition).normalize().mul(getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble())
     }
 
     fun getTimeToTarget(target: Vec3d): Double {
@@ -114,7 +115,8 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
     }
 
     fun getMotionToReachTarget(target: Vec3d): Vec3d {
-        return getHorizontalMotion(target).add(getVerticalMotion(getTimeToTarget(target), target))
+        val time = getTimeToTarget(target)
+        return getHorizontalMotion(target).add(getVerticalMotion(time, target))
     }
 
     override fun createSpawnPacket(): IPacket<*> {
