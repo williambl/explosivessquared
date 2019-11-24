@@ -3,6 +3,7 @@ package com.williambl.explosivessquared
 import net.minecraft.block.Blocks
 import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
 import kotlin.math.roundToInt
@@ -97,6 +98,28 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
                 .filter { pos -> it.world.getBlockState(pos).isAir(it.world, pos) }
                 .forEach { pos ->
                     it.world.setBlockState(pos, Blocks.FIRE.defaultState)
+                }
+    }
+}
+
+fun frostExplosion(radius: Double): ExplosionFunction {
+    return {
+        it.position.getAllInSphere(radius.roundToInt())
+                .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
+                .forEach { pos ->
+                    when (it.world.getBlockState(pos).block) {
+                        Blocks.ICE -> it.world.setBlockState(pos, Blocks.PACKED_ICE.defaultState)
+                        Blocks.FIRE -> it.world.removeBlock(pos, false)
+                        Blocks.MAGMA_BLOCK -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
+                    }
+
+                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water")))
+                        it.world.setBlockState(pos, Blocks.ICE.defaultState)
+                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:lava")))
+                        it.world.setBlockState(pos, Blocks.STONE.defaultState)
+
+                    if (it.world.getBlockState(pos.up()).isAir(it.world, pos) && Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, it.world, pos.up()))
+                        it.world.setBlockState(pos.up(), Blocks.SNOW.defaultState)
                 }
     }
 }

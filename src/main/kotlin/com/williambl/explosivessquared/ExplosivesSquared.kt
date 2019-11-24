@@ -46,7 +46,9 @@ object ExplosivesSquared {
             ExplosiveBuilder("attractor_tnt")
                     .setExplodeFunction(attractingExplosion(8.0)),
             ExplosiveBuilder("napalm")
-                    .setExplodeFunction(napalmExplosion(8.0))
+                    .setExplodeFunction(napalmExplosion(8.0)),
+            ExplosiveBuilder("frost_bomb")
+                    .setExplodeFunction(frostExplosion(8.0))
     )
 
     @SubscribeEvent
