@@ -64,7 +64,8 @@ object ExplosivesSquared {
     @SubscribeEvent
     fun registerItems(event: RegistryEvent.Register<Item>) {
         event.registry.registerAll(
-                *explosives.map { it.createItem() }.toTypedArray()
+                *explosives.map { it.createItem() }.toTypedArray(),
+                *explosives.map { it.createBoomStick() }.toTypedArray()
         )
     }
 

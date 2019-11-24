@@ -14,6 +14,7 @@ class ExplosiveBuilder(val name: String) {
     private var fuse: Int = 80
     private var blockProperties = Block.Properties.create(Material.TNT)
     private var itemProperties = Item.Properties().group(ItemGroup.REDSTONE)
+    private var boomStickProperties = Item.Properties().group(ItemGroup.TOOLS)
 
     private lateinit var block: ExplosiveBlock
 
@@ -37,6 +38,11 @@ class ExplosiveBuilder(val name: String) {
         return this
     }
 
+    fun setBoomStickProperties(properties: Item.Properties): ExplosiveBuilder {
+        this.boomStickProperties = properties
+        return this
+    }
+
     fun createBlock(): ExplosiveBlock {
         block = ExplosiveBlock(blockProperties, entityExplosion)
         block.setRegistryName(name)
@@ -47,6 +53,14 @@ class ExplosiveBuilder(val name: String) {
         if (this::block.isInitialized) {
             val item = BlockItem(block, itemProperties)
             item.setRegistryName(name)
+            return item
+        } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
+    }
+
+    fun createBoomStick(): BoomStickItem {
+        if (this::block.isInitialized) {
+            val item = BoomStickItem(block, boomStickProperties)
+            item.setRegistryName(name + "_boomstick")
             return item
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
