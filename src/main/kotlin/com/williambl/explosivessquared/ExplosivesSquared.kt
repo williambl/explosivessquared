@@ -30,15 +30,15 @@ object ExplosivesSquared {
                     .setFuseLength(160)
                     .setExplodeFunction(regularExplosion(15f)),
             ExplosiveBuilder("vegetation_destroyer")
-                    .setExplodeFunction(vegetationDestroyerExplosion(8)),
+                    .setExplodeFunction(vegetationDestroyerExplosion(8.0)),
             ExplosiveBuilder("gravitationaliser")
-                    .setExplodeFunction(gravitationalisingExplosion(8)),
+                    .setExplodeFunction(gravitationalisingExplosion(8.0)),
             ExplosiveBuilder("tnt_rainer")
-                    .setExplodeFunction(tntRainingExplosion(16, 16)),
+                    .setExplodeFunction(tntRainingExplosion(16, 16.0)),
             ExplosiveBuilder("repulsor_tnt")
-                    .setExplodeFunction(repellingExplosion(8)),
+                    .setExplodeFunction(repellingExplosion(8.0)),
             ExplosiveBuilder("attractor_tnt")
-                    .setExplodeFunction(attractingExplosion(8))
+                    .setExplodeFunction(attractingExplosion(8.0))
     )
 
     @SubscribeEvent
