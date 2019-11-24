@@ -48,7 +48,7 @@ class ExplosiveBuilder(val name: String) {
             val item = BlockItem(block, itemProperties)
             item.setRegistryName(name)
             return item
-        } else throw IllegalStateException("Tried to create Item before Block!")
+        } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
 
     fun createEntityType(): EntityType<*>? {
@@ -57,6 +57,6 @@ class ExplosiveBuilder(val name: String) {
             ExplosivesSquared.entityTypesToBlocks[type as EntityType<out ExplosiveEntity>] = block
             ExplosivesSquared.blocksToEntityTypes[block] = type
             return type
-        } else throw IllegalStateException("Tried to create EntityType before Block!")
+        } else throw UninitializedPropertyAccessException("Tried to create EntityType before Block!")
     }
 }
