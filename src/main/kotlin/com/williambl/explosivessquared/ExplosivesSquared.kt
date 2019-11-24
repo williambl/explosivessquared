@@ -2,11 +2,9 @@ package com.williambl.explosivessquared
 
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
-import net.minecraft.block.material.Material
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
-import net.minecraft.item.ItemGroup
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
@@ -31,20 +29,16 @@ object ExplosivesSquared {
             ExplosiveBuilder("slow_tnt")
                     .setFuseLength(160)
                     .setExplodeFunction(regularExplosion(15f)),
-            ExplosiveBuilder("cake_tnt")
-                    .setBlockProperties(Block.Properties.create(Material.CAKE))
-                    .setItemProperties(Item.Properties().group(ItemGroup.FOOD))
-                    .setExplodeFunction(createCake),
             ExplosiveBuilder("vegetation_destroyer")
-                    .setExplodeFunction(destroyVegetation),
+                    .setExplodeFunction(vegetationDestroyerExplosion(8)),
             ExplosiveBuilder("gravitationaliser")
-                    .setExplodeFunction(makeBlocksFall),
+                    .setExplodeFunction(gravitationalisingExplosion(8)),
             ExplosiveBuilder("tnt_rainer")
-                    .setExplodeFunction(rainTNT),
+                    .setExplodeFunction(tntRainingExplosion(16, 16)),
             ExplosiveBuilder("repulsor_tnt")
-                    .setExplodeFunction(repelBlocks),
+                    .setExplodeFunction(repellingExplosion(8)),
             ExplosiveBuilder("attractor_tnt")
-                    .setExplodeFunction(attractBlocks)
+                    .setExplodeFunction(attractingExplosion(8))
     )
 
     @SubscribeEvent
