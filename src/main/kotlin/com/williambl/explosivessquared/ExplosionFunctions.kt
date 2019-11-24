@@ -42,3 +42,27 @@ val rainTNT: ExplosionFunction = {
         it.world.addEntity(tntEntity)
     }
 }
+
+val repelBlocks: ExplosionFunction = {
+    it.position.getAllInSphere(8)
+            .forEach { pos ->
+                val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
+                fallingEntity.setHurtEntities(true)
+                val speed = 8 / (fallingEntity.positionVec.distanceTo(it.positionVec))
+                val velocityVector = fallingEntity.positionVec.subtract(it.positionVec).normalize().mul(speed, speed, speed)
+                fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                it.world.addEntity(fallingEntity)
+            }
+}
+
+val attractBlocks: ExplosionFunction = {
+    it.position.getAllInSphere(8)
+            .forEach { pos ->
+                val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
+                fallingEntity.setHurtEntities(true)
+                val speed = 8 / (fallingEntity.positionVec.distanceTo(it.positionVec))
+                val velocityVector = it.positionVec.subtract(fallingEntity.positionVec).normalize().mul(speed, speed, speed)
+                fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                it.world.addEntity(fallingEntity)
+            }
+}

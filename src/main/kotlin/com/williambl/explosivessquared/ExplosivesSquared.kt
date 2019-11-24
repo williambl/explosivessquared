@@ -40,7 +40,11 @@ object ExplosivesSquared {
             ExplosiveBuilder("gravitationaliser")
                     .setExplodeFunction(makeBlocksFall),
             ExplosiveBuilder("tnt_rainer")
-                    .setExplodeFunction(rainTNT)
+                    .setExplodeFunction(rainTNT),
+            ExplosiveBuilder("repulsor_tnt")
+                    .setExplodeFunction(repelBlocks),
+            ExplosiveBuilder("attractor_tnt")
+                    .setExplodeFunction(attractBlocks)
     )
 
     @SubscribeEvent
