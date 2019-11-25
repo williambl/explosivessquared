@@ -1,8 +1,10 @@
 package com.williambl.explosivessquared
 
 import net.minecraft.block.Blocks
+import net.minecraft.entity.EntityType
 import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
+import net.minecraft.util.DamageSource
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
@@ -72,7 +74,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
 
 fun attractingExplosion(radius: Double): ExplosionFunction {
     return {
-        it.world.getEntitiesInSphere(it.position, radius)
+        it.world.getEntitiesInSphere(it.position, radius, it)
                 .forEach { entity ->
                     val speed = radius / (entity.positionVec.distanceTo(it.positionVec))
                     val velocityVector = it.positionVec.subtract(entity.positionVec).normalize().mul(speed, speed, speed)
@@ -123,6 +125,20 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 
                     if (it.world.rand.nextDouble() < 0.05)
                         it.world.setBlockState(pos, Blocks.ICE.defaultState)
+                }
+        it.world.getEntitiesInSphere(it.position, radius, it)
+                .forEach { entity ->
+                    var damage =
+                            (if (entity.position == it.position)
+                                100 * radius
+                            else
+                                radius / entity.getDistance(it)).toFloat()
+
+                    if (entity.type == EntityType.BLAZE || entity.type == EntityType.MAGMA_CUBE)
+                        damage *= 3
+
+                    entity.attackEntityFrom(DamageSource("frost"), damage)
+
                 }
     }
 }
