@@ -120,6 +120,9 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 
                     if (it.world.getBlockState(pos.up()).isAir(it.world, pos) && Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, it.world, pos.up()))
                         it.world.setBlockState(pos.up(), Blocks.SNOW.defaultState)
+
+                    if (it.world.rand.nextDouble() < 0.05)
+                        it.world.setBlockState(pos, Blocks.ICE.defaultState)
                 }
     }
 }
