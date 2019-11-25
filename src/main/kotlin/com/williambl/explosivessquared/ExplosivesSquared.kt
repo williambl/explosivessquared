@@ -5,6 +5,7 @@ import net.minecraft.block.Block
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
+import net.minecraft.item.ItemGroup
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraftforge.event.RegistryEvent
@@ -78,7 +79,8 @@ object ExplosivesSquared {
         event.registry.registerAll(
                 *explosives.map { it.createItem() }.toTypedArray(),
                 *explosives.map { it.createMissileItem() }.toTypedArray(),
-                *explosives.map { it.createBoomStick() }.toTypedArray()
+                *explosives.map { it.createBoomStick() }.toTypedArray(),
+                TargeterItem(Item.Properties().group(ItemGroup.TOOLS)).setRegistryName("targeter")
         )
     }
 
