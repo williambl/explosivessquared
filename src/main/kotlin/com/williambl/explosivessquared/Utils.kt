@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
-import java.util.stream.Stream
 import kotlin.math.pow
 
 fun BlockState.isVegetation(): Boolean {
@@ -30,8 +29,8 @@ fun BlockState.isGrass(): Boolean {
     return this.block is GrassBlock
 }
 
-fun BlockPos.getAllInSphere(radius: Int): Stream<BlockPos> {
-    return BlockPos.getAllInBox(this.subtract(BlockPos(radius, radius, radius)), this.add(BlockPos(radius, radius, radius)))
+fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
+    return Sequence { BlockPos.getAllInBoxMutable(this.subtract(BlockPos(radius, radius, radius)), this.add(BlockPos(radius, radius, radius))).iterator() }
             .filter { pos -> pos.distanceSq(this) < radius.toFloat().pow(2) }
 }
 
