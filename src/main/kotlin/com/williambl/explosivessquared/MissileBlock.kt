@@ -18,7 +18,7 @@ import net.minecraft.world.Explosion
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
 
-open class MissileBlock(val block: ExplosiveBlock, properties: Block.Properties) : Block(properties) {
+open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Properties) : Block(properties) {
 
     override fun hasTileEntity(state: BlockState?): Boolean {
         return true
@@ -30,8 +30,8 @@ open class MissileBlock(val block: ExplosiveBlock, properties: Block.Properties)
 
     private fun explode(world: World, pos: BlockPos, entity: LivingEntity?) {
         if (!world.isRemote) {
-            val missileEntity = ExplosivesSquared.entityTypesToMissileEntityTypes[ExplosivesSquared.blocksToEntityTypes[block]]?.let { MissileEntity(it, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), entity, (world.getTileEntity(pos) as MissileTileEntity).target) }
-            world.addEntity(missileEntity!!)
+            val missileEntity = MissileEntity(explosiveType.missileEntityType, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), entity, (world.getTileEntity(pos) as MissileTileEntity).target)
+            world.addEntity(missileEntity)
         }
     }
 

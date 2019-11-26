@@ -11,14 +11,14 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
 
-class BoomStickItem(val block: ExplosiveBlock, properties: Item.Properties) : Item(properties) {
+class BoomStickItem(val explosiveType: ExplosiveType, properties: Item.Properties) : Item(properties) {
 
     override fun onItemRightClick(world: World, playerIn: PlayerEntity, handIn: Hand): ActionResult<ItemStack> {
         val result = rayTrace(playerIn, 64.0, world)
         if (result.type == RayTraceResult.Type.BLOCK) {
-            val explosiveEntity = ExplosivesSquared.blocksToEntityTypes[block]?.let { ExplosiveEntity(it, world, result.hitVec.x, result.hitVec.y, result.hitVec.z, playerIn) }
-            explosiveEntity?.setFuse(0)
-            world.addEntity(explosiveEntity!!)
+            val explosiveEntity = ExplosiveEntity(explosiveType.entityType, world, result.hitVec.x, result.hitVec.y, result.hitVec.z, playerIn)
+            explosiveEntity.setFuse(0)
+            world.addEntity(explosiveEntity)
             world.playSound(null as PlayerEntity?, explosiveEntity.posX, explosiveEntity.posY, explosiveEntity.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0f, 1.0f)
             return ActionResult(ActionResultType.SUCCESS, playerIn.getHeldItem(handIn))
         }

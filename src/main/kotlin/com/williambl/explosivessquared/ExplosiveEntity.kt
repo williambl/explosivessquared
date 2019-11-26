@@ -27,7 +27,7 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
 
     init {
         this.preventEntitySpawning = true
-        fuse = ExplosivesSquared.entityTypesToBlocks[type]?.fuse ?: 80
+        fuse = ExplosivesSquared.explosiveMap[type.registryName!!.path]?.fuse ?: 80
     }
 
     constructor(type: EntityType<out ExplosiveEntity>, worldIn: World, x: Double, y: Double, z: Double, igniter: LivingEntity?) : this(type, worldIn) {
@@ -71,7 +71,7 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
         if (this.fuse <= 0) {
             this.remove()
             if (!this.world.isRemote) {
-                ExplosivesSquared.entityTypesToBlocks[type]?.entityExplode?.invoke(this)
+                ExplosivesSquared.explosiveMap[type.registryName!!.path]?.explodeFunction?.invoke(this)
             }
         } else {
             this.handleWaterMovement()

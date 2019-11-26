@@ -25,35 +25,32 @@ object ExplosivesSquared {
     const val modid = "explosivessquared"
     private val LOGGER = LogManager.getLogger()
 
-    val entityTypesToBlocks: MutableMap<EntityType<out ExplosiveEntity>, ExplosiveBlock> = mutableMapOf()
-    val blocksToEntityTypes: MutableMap<ExplosiveBlock, EntityType<out ExplosiveEntity>> = mutableMapOf()
-    val entityTypesToMissileEntityTypes: MutableMap<EntityType<out ExplosiveEntity>, EntityType<out MissileEntity>> = mutableMapOf()
-    val missileEntityTypesToEntityTypes: MutableMap<EntityType<out MissileEntity>, EntityType<out ExplosiveEntity>> = mutableMapOf()
-    val validMissileBlocks: MutableSet<MissileBlock> = mutableSetOf()
-
-    var explosives: List<ExplosiveBuilder> = listOf(
-            ExplosiveBuilder("big_tnt").setExplodeFunction(regularExplosion(15f)),
-            ExplosiveBuilder("slow_tnt")
+    var explosives: List<ExplosiveType> = listOf(
+            ExplosiveType("big_tnt").setExplodeFunction(regularExplosion(15f)),
+            ExplosiveType("slow_tnt")
                     .setFuseLength(160)
                     .setExplodeFunction(regularExplosion(15f)),
-            ExplosiveBuilder("vegetation_destroyer")
+            ExplosiveType("vegetation_destroyer")
                     .setExplodeFunction(vegetationDestroyerExplosion(8.0)),
-            ExplosiveBuilder("gravitationaliser")
+            ExplosiveType("gravitationaliser")
                     .setExplodeFunction(gravitationalisingExplosion(8.0)),
-            ExplosiveBuilder("tnt_rainer")
+            ExplosiveType("tnt_rainer")
                     .setExplodeFunction(tntRainingExplosion(16, 16.0)),
-            ExplosiveBuilder("repulsor_tnt")
+            ExplosiveType("repulsor_tnt")
                     .setExplodeFunction(repellingExplosion(8.0)),
-            ExplosiveBuilder("attractor_tnt")
+            ExplosiveType("attractor_tnt")
                     .setExplodeFunction(attractingExplosion(8.0)),
-            ExplosiveBuilder("napalm")
+            ExplosiveType("napalm")
                     .setExplodeFunction(napalmExplosion(8.0)),
-            ExplosiveBuilder("frost_bomb")
+            ExplosiveType("frost_bomb")
                     .setExplodeFunction(frostExplosion(8.0))
     )
 
+    lateinit var explosiveMap: Map<String, ExplosiveType>
+
     @SubscribeEvent
     public fun setup(event: FMLCommonSetupEvent) {
+        explosiveMap = explosives.map { it.name to it }.toMap()
     }
 
     @SubscribeEvent
@@ -94,7 +91,7 @@ object ExplosivesSquared {
 
     @SubscribeEvent
     fun registerTileEntityTypes(event: RegistryEvent.Register<TileEntityType<out TileEntity>>) {
-        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *validMissileBlocks.toTypedArray()).build(null).setRegistryName("missile"))
+        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosives.map { it.missileBlock }.toTypedArray()).build(null).setRegistryName("missile"))
     }
 
 }

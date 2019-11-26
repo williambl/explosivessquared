@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.world.Explosion
 import net.minecraft.world.World
 
-open class ExplosiveBlock(properties: Block.Properties, val entityExplode: (ExplosiveEntity) -> Unit, val fuse: Int = 80) : Block(properties) {
+open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Block.Properties) : Block(properties) {
 
     init {
         this.defaultState = this.defaultState.with(BlockStateProperties.UNSTABLE, false)
@@ -26,9 +26,9 @@ open class ExplosiveBlock(properties: Block.Properties, val entityExplode: (Expl
 
     private fun explode(world: World, pos: BlockPos, entity: LivingEntity?) {
         if (!world.isRemote) {
-            val explosiveEntity = ExplosivesSquared.blocksToEntityTypes[this]?.let { ExplosiveEntity(it, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), entity) }
-            explosiveEntity?.setFuse(fuse)
-            world.addEntity(explosiveEntity!!)
+            val explosiveEntity = ExplosiveEntity(explosiveType.entityType, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), entity)
+            explosiveEntity.setFuse(explosiveType.fuse)
+            world.addEntity(explosiveEntity)
             world.playSound(null as PlayerEntity?, explosiveEntity.posX, explosiveEntity.posY, explosiveEntity.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0f, 1.0f)
         }
     }
@@ -67,9 +67,9 @@ open class ExplosiveBlock(properties: Block.Properties, val entityExplode: (Expl
      */
     override fun onExplosionDestroy(world: World, pos: BlockPos, explosion: Explosion?) {
         if (!world.isRemote) {
-            val explosiveEntity = ExplosivesSquared.blocksToEntityTypes[this]?.let { ExplosiveEntity(it, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), null) }
-            explosiveEntity?.setFuse(world.rand.nextInt(fuse / 4) + fuse / 8)
-            world.addEntity(explosiveEntity!!)
+            val explosiveEntity = ExplosiveEntity(explosiveType.entityType, world, (pos.x.toFloat() + 0.5f).toDouble(), pos.y.toDouble(), (pos.z.toFloat() + 0.5f).toDouble(), null)
+            explosiveEntity.setFuse(world.rand.nextInt(explosiveType.fuse / 4) + explosiveType.fuse / 8)
+            world.addEntity(explosiveEntity)
         }
     }
 
