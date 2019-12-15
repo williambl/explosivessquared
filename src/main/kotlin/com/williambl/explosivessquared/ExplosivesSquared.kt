@@ -43,7 +43,9 @@ object ExplosivesSquared {
             ExplosiveType("napalm")
                     .setExplodeFunction(napalmExplosion(8.0)),
             ExplosiveType("frost_bomb")
-                    .setExplodeFunction(frostExplosion(8.0))
+                    .setExplodeFunction(frostExplosion(8.0)),
+            ExplosiveType("nether_bomb")
+                    .setExplodeFunction(netherExplosion(8.0))
     )
 
     lateinit var explosiveMap: Map<String, ExplosiveType>

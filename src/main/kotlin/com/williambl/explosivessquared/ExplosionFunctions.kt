@@ -1,11 +1,18 @@
 package com.williambl.explosivessquared
 
 import net.minecraft.block.Blocks
+import net.minecraft.block.IGrowable
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
+import net.minecraft.entity.monster.MagmaCubeEntity
+import net.minecraft.entity.monster.SlimeEntity
+import net.minecraft.entity.monster.ZombiePigmanEntity
+import net.minecraft.entity.passive.PigEntity
 import net.minecraft.util.DamageSource
+import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
 import kotlin.math.roundToInt
@@ -140,5 +147,124 @@ fun frostExplosion(radius: Double): ExplosionFunction {
                     entity.attackEntityFrom(DamageSource("frost"), damage)
 
                 }
+    }
+}
+
+fun netherExplosion(radius: Double): ExplosionFunction {
+    return {
+        if (!it.world.dimension.isNether) {
+            it.position.getAllInSphere(radius.roundToInt())
+                    .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
+                    .forEach { pos ->
+                        val block = it.world.getBlockState(pos).block
+                        when {
+                            block.tags.contains(ResourceLocation("forge:sand")) -> it.world.setBlockState(pos, Blocks.SOUL_SAND.defaultState)
+                            block == Blocks.CLAY -> it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
+                            block == Blocks.BRICKS -> it.world.setBlockState(pos, Blocks.NETHER_BRICKS.defaultState)
+                            block.tags.contains(ResourceLocation("minecraft:dirt_like")) -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
+                            block is IGrowable -> it.world.setBlockState(pos, Blocks.NETHER_WART.defaultState)
+                            block.tags.contains(ResourceLocation("minecraft:logs")) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
+                            block.tags.contains(ResourceLocation("minecraft:leaves")) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
+                            block.tags.contains(ResourceLocation("minecraft:ice")) -> it.world.setBlockState(pos, Blocks.STONE.defaultState)
+                        }
+
+                        if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water")))
+                            it.world.setBlockState(pos, Blocks.LAVA.defaultState)
+
+
+                        if (it.world.rand.nextDouble() < 0.05)
+                            it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
+
+                    }
+            it.world.getEntitiesInSphere(it.position, radius, it)
+                    .forEach { entity ->
+
+                        if (entity.type == EntityType.SLIME) {
+                            val newEntity = object : MagmaCubeEntity(EntityType.MAGMA_CUBE, entity.world) {
+                                init {
+                                    setSlimeSize((entity as SlimeEntity).slimeSize, true)
+                                }
+                            }
+                            newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
+                            newEntity.customName = entity.customName
+                            newEntity.isCustomNameVisible = entity.isCustomNameVisible
+                            entity.world.addEntity(newEntity)
+                            entity.remove()
+                        }
+
+                        if (entity.type == EntityType.PIG) {
+                            val newEntity = ZombiePigmanEntity(EntityType.ZOMBIE_PIGMAN, entity.world)
+                            newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
+                            newEntity.customName = entity.customName
+                            newEntity.isCustomNameVisible = entity.isCustomNameVisible
+                            entity.world.addEntity(newEntity)
+                            entity.removed = true
+                        }
+
+                    }
+        } else {
+            it.position.getAllInSphere(radius.roundToInt())
+                    .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
+                    .forEach { pos ->
+                        val block = it.world.getBlockState(pos).block
+                        when {
+                            block == Blocks.SOUL_SAND -> it.world.setBlockState(pos, Blocks.SAND.defaultState)
+                            block == Blocks.MAGMA_BLOCK -> it.world.setBlockState(pos, Blocks.CLAY.defaultState)
+                            block == Blocks.NETHER_BRICKS -> it.world.setBlockState(pos, Blocks.BRICKS.defaultState)
+                            block == Blocks.NETHERRACK -> it.world.setBlockState(pos, Blocks.DIRT.defaultState)
+                        }
+
+                        if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:lava")))
+                            it.world.setBlockState(pos, Blocks.WATER.defaultState)
+
+
+                        if (it.world.rand.nextDouble() < 0.05)
+                            it.world.setBlockState(pos, Blocks.GRASS_BLOCK.defaultState)
+
+                    }
+            it.world.getEntitiesInSphere(it.position, radius, it)
+                    .forEach { entity ->
+
+                        if (entity.type == EntityType.MAGMA_CUBE) {
+                            val newEntity = object : SlimeEntity(EntityType.SLIME, entity.world) {
+                                init {
+                                    setSlimeSize((entity as MagmaCubeEntity).slimeSize, true)
+                                }
+                            }
+                            newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
+                            newEntity.customName = entity.customName
+                            newEntity.isCustomNameVisible = entity.isCustomNameVisible
+                            entity.world.addEntity(newEntity)
+                            entity.remove()
+                        }
+
+                        if (entity.type == EntityType.ZOMBIE_PIGMAN) {
+                            val newEntity = PigEntity(EntityType.PIG, entity.world)
+                            newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
+                            newEntity.customName = entity.customName
+                            newEntity.isCustomNameVisible = entity.isCustomNameVisible
+                            entity.world.addEntity(newEntity)
+                            entity.removed = true
+                        }
+
+                    }
+        }
+
+        val blockPlacingPos = BlockPos.MutableBlockPos(it.position)
+        blockPlacingPos.move(Direction.UP).move(Direction.UP).move(Direction.UP)
+        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
     }
 }
