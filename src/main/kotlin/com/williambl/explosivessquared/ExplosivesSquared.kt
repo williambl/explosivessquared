@@ -14,6 +14,7 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent
 import org.apache.logging.log4j.LogManager
 import java.util.function.Supplier
@@ -94,6 +95,13 @@ object ExplosivesSquared {
     @SubscribeEvent
     fun registerTileEntityTypes(event: RegistryEvent.Register<TileEntityType<out TileEntity>>) {
         event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosives.map { it.missileBlock }.toTypedArray()).build(null).setRegistryName("missile"))
+    }
+
+    @SubscribeEvent
+    fun setupDataGenerators(event: GatherDataEvent) {
+        event.generator.addProvider(ItemModels(event.generator, event.existingFileHelper))
+        event.generator.addProvider(BlockStates(event.generator, event.existingFileHelper))
+        event.generator.addProvider(LootTables(event.generator))
     }
 
 }

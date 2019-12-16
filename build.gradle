@@ -77,7 +77,7 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
-            args '--mod', 'explosivessquared', '--all', '--output', file('src/generated/resources/')
+            args '--mod', 'explosivessquared', '--all', '--output', file('src/main/resources/'), '--existing', sourceSets.main.resources.srcDirs[0]
 
             mods {
                 explosivessquared {
