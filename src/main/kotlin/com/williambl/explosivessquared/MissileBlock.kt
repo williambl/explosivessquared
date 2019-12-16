@@ -36,7 +36,7 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
     }
 
     override fun getShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
-        return makeCuboidShape(4.0, 0.0, 4.0, 12.0, 24.0, 12.0)
+        return makeCuboidShape(4.0, 0.0, 4.0, 12.0, 14.0, 12.0)
     }
 
     private fun explode(world: World, pos: BlockPos, entity: LivingEntity?) {
