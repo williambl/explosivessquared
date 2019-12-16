@@ -8,7 +8,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.AbstractArrowEntity
 import net.minecraft.item.Items
-import net.minecraft.state.StateContainer
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.BlockRenderLayer
@@ -111,10 +110,6 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
      */
     override fun canDropFromExplosion(explosion: Explosion?): Boolean {
         return false
-    }
-
-    override fun fillStateContainer(builder: StateContainer.Builder<Block, BlockState>) {
-        builder.add(BlockStateProperties.UNSTABLE)
     }
 
 }
