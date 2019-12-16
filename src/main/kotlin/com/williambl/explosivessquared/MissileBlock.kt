@@ -11,9 +11,12 @@ import net.minecraft.item.Items
 import net.minecraft.state.StateContainer
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.util.math.shapes.ISelectionContext
+import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.world.Explosion
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
@@ -26,6 +29,14 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
 
     override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {
         return MissileTileEntity()
+    }
+
+    override fun getRenderLayer(): BlockRenderLayer {
+        return BlockRenderLayer.CUTOUT
+    }
+
+    override fun getShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
+        return makeCuboidShape(4.0, 0.0, 4.0, 12.0, 24.0, 12.0)
     }
 
     private fun explode(world: World, pos: BlockPos, entity: LivingEntity?) {
