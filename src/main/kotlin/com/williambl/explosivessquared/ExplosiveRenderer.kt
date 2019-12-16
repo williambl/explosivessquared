@@ -22,7 +22,7 @@ class ExplosiveRenderer(renderManagerIn: EntityRendererManager) : EntityRenderer
     override fun doRender(entity: ExplosiveEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         val blockstate =
                 if (entity is MissileEntity)
-                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path.dropLast(8)]?.block?.defaultState
+                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path.dropLast(8)]?.missileBlock?.defaultState
                             ?: Blocks.AIR.defaultState
                 else
                     ExplosivesSquared.explosiveMap[entity.type.registryName!!.path]?.block?.defaultState
