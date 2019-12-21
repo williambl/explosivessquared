@@ -12,6 +12,9 @@ import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.NetworkHooks
+import kotlin.math.atan2
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, var target: Vec3d) : ExplosiveEntity(type, worldIn) {
@@ -56,6 +59,8 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         if (this.onGround && this.getFuse() < 80) {
             this.motion = this.motion.mul(0.7, -0.5, 0.7)
         }
+
+        this.setRotation((atan2(motion.x, motion.z) * 57.3).toFloat() + 90f, (atan2(sqrt(motion.x.pow(2) + motion.z.pow(2)), motion.y) * 57.3f).toFloat())
 
         setFuse(getFuse() - 1)
         if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
