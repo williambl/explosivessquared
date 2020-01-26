@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "explosivessquared:block/missile"
+      "model": "explosivessquared:block/big_tnt_missile"
     }
   }
 }
