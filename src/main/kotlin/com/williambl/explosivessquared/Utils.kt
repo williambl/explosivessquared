@@ -40,3 +40,10 @@ fun World.getEntitiesInSphere(pos: BlockPos, radius: Double, excluding: Entity? 
             AxisAlignedBB(pos.add(-0.5, -0.5, -0.5)).grow(radius)
     ) { it.getDistanceSq(Vec3d(pos)) < radius.pow(2) && predicate(it) }
 }
+
+fun BlockPos.getAllInColumn(radius: Int): Sequence<BlockPos> {
+    return Sequence { BlockPos.getAllInBoxMutable(this.subtract(BlockPos(radius, 0, radius)), this.add(BlockPos(radius, 0, radius))).iterator() }
+            .filter { pos -> pos.distanceSq(this) < radius.toFloat().pow(2) }
+            .map { pos -> List(256) { idx -> BlockPos(pos.x, idx, pos.z) } }
+            .flatten()
+}

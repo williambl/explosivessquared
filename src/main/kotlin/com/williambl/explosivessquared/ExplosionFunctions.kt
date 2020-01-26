@@ -9,12 +9,14 @@ import net.minecraft.entity.monster.MagmaCubeEntity
 import net.minecraft.entity.monster.SlimeEntity
 import net.minecraft.entity.monster.ZombiePigmanEntity
 import net.minecraft.entity.passive.PigEntity
+import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.DamageSource
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
+import net.minecraftforge.common.Tags
 import kotlin.math.roundToInt
 
 typealias ExplosionFunction = (ExplosiveEntity) -> Unit
@@ -266,5 +268,47 @@ fun netherExplosion(radius: Double): ExplosionFunction {
         it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
         it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
         it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+    }
+}
+
+fun glassingRay(radius: Double): ExplosionFunction {
+    return {
+        it.position.getAllInSphere(radius.toInt())
+                .forEach { pos ->
+                    val blockstate = it.world.getBlockState(pos)
+                    val block = blockstate.block
+                    val tags = block.tags
+
+                    if (blockstate.isAir(it.world, pos)) {
+                        it.world.setBlockState(pos, Blocks.FIRE.defaultState)
+                        return@forEach
+                    }
+
+                    when (blockstate.block) {
+                        Blocks.SAND -> it.world.setBlockState(pos, Blocks.GLASS.defaultState)
+                    }
+                    if (tags.contains(ResourceLocation("minecraft:ice"))) {
+                        it.world.removeBlock(pos, false)
+                        for (i in 0..20)
+                            it.world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
+                    } else if (tags.contains(ResourceLocation("minecraft:sand"))) {
+                        it.world.setBlockState(pos, Tags.Blocks.GLASS.getRandomElement(it.world.rand).defaultState)
+                    } else if (tags.contains(ResourceLocation("forge:gravel"))) {
+                        it.world.setBlockState(pos, Tags.Blocks.STONE.getRandomElement(it.world.rand).defaultState)
+                    } else if (tags.contains(ResourceLocation("forge:stone"))) {
+                        if (it.world.rand.nextBoolean())
+                            it.world.setBlockState(pos, Blocks.LAVA.defaultState)
+                        else
+                            it.world.setBlockState(pos, Blocks.OBSIDIAN.defaultState)
+                    } else if (block == Blocks.CLAY) {
+                        it.world.setBlockState(pos, Blocks.TERRACOTTA.defaultState)
+                    }
+
+                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water"))) {
+                        it.world.setBlockState(pos, Blocks.AIR.defaultState)
+                        for (i in 0..20)
+                            it.world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
+                    }
+                }
     }
 }
