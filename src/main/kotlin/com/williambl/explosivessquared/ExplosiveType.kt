@@ -106,7 +106,7 @@ class ExplosiveType(val name: String) {
     fun createMissileEntityType(): EntityType<*>? {
         if (this::missileBlock.isInitialized) {
             if (this::entityType.isInitialized) {
-                missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).build(name + "_missile").setRegistryName(name + "_missile") as EntityType<out MissileEntity>
+                missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).setTrackingRange(256).build(name + "_missile").setRegistryName(name + "_missile") as EntityType<out MissileEntity>
                 return missileEntityType
             } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before EntityType!")
         } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before Missile Block!")
