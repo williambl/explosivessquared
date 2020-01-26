@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/gravitationaliser"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/gravitationaliser"
+    }
+  }
+}

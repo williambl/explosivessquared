@@ -1,0 +1,6 @@
+{
+  "parent": "explosivessquared:item/generator",
+  "textures": {
+    "layer0": "explosivessquared:item/targeter"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/frost_bomb_missile"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/frost_bomb_missile"
+    }
+  }
+}

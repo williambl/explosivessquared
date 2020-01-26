@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/repulsor_tnt_missile"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/repulsor_tnt_missile"
+    }
+  }
+}

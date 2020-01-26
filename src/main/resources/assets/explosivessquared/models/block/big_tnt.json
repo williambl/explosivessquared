@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "explosivessquared:block/explosive/big_tnt"
+  }
+}

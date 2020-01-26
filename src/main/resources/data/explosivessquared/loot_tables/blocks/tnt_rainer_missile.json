@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "tnt_rainer_missile",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "explosivessquared:tnt_rainer_missile"
+        }
+      ]
+    }
+  ]
+}
