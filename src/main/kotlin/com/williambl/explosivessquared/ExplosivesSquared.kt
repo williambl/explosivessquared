@@ -3,6 +3,7 @@ package com.williambl.explosivessquared
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
@@ -62,6 +63,7 @@ object ExplosivesSquared {
     public fun doClientStuff(event: FMLClientSetupEvent) {
         RenderingRegistry.registerEntityRenderingHandler(ExplosiveEntity::class.java, ::ExplosiveRenderer)
         RenderingRegistry.registerEntityRenderingHandler(MissileEntity::class.java, ::ExplosiveRenderer)
+        RenderingRegistry.registerEntityRenderingHandler(GlassingRayBeamEntity::class.java, ::GlassingRayBeamRenderer)
     }
 
     @SubscribeEvent
@@ -90,7 +92,8 @@ object ExplosivesSquared {
     fun registerEntityTypes(event: RegistryEvent.Register<EntityType<out Entity>>) {
         event.registry.registerAll(
                 *explosives.map { it.createEntityType() }.toTypedArray(),
-                *explosives.map { it.createMissileEntityType() }.toTypedArray()
+                *explosives.map { it.createMissileEntityType() }.toTypedArray(),
+                EntityType.Builder.create(::GlassingRayBeamEntity, EntityClassification.MISC).build("glassing_ray_beam").setRegistryName("glassing_ray_beam")
         )
     }
 

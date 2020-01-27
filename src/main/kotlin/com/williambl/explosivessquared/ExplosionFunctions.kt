@@ -1,5 +1,6 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
 import net.minecraft.entity.EntityType
@@ -310,5 +311,6 @@ fun glassingRay(radius: Double): ExplosionFunction {
                             it.world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
                     }
                 }
+        it.world.addEntity(GlassingRayBeamEntity(EntityTypeHolder.glassingRayBeam, it.world, it.posX, it.posY, it.posZ))
     }
 }
