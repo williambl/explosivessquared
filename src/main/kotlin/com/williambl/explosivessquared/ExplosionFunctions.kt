@@ -12,9 +12,9 @@ import net.minecraft.entity.monster.ZombiePigmanEntity
 import net.minecraft.entity.passive.PigEntity
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.tags.BlockTags
+import net.minecraft.tags.FluidTags
 import net.minecraft.util.DamageSource
 import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
@@ -126,9 +126,9 @@ fun frostExplosion(radius: Double): ExplosionFunction {
                         Blocks.MAGMA_BLOCK -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
                     }
 
-                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water")))
+                    if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid))
                         it.world.setBlockState(pos, Blocks.ICE.defaultState)
-                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:lava")))
+                    if (FluidTags.LAVA.contains(it.world.getFluidState(pos).fluid))
                         it.world.setBlockState(pos, Blocks.STONE.defaultState)
 
                     if (it.world.getBlockState(pos.up()).isAir(it.world, pos) && Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, it.world, pos.up()))
@@ -162,17 +162,17 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     .forEach { pos ->
                         val block = it.world.getBlockState(pos).block
                         when {
-                            block.tags.contains(ResourceLocation("forge:sand")) -> it.world.setBlockState(pos, Blocks.SOUL_SAND.defaultState)
+                            Tags.Blocks.SAND.contains(block) -> it.world.setBlockState(pos, Blocks.SOUL_SAND.defaultState)
                             block == Blocks.CLAY -> it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
                             block == Blocks.BRICKS -> it.world.setBlockState(pos, Blocks.NETHER_BRICKS.defaultState)
-                            block.tags.contains(ResourceLocation("minecraft:dirt_like")) -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
+                            BlockTags.DIRT_LIKE.contains(block) -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
                             block is IGrowable -> it.world.setBlockState(pos, Blocks.NETHER_WART.defaultState)
-                            block.tags.contains(ResourceLocation("minecraft:logs")) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
-                            block.tags.contains(ResourceLocation("minecraft:leaves")) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
-                            block.tags.contains(ResourceLocation("minecraft:ice")) -> it.world.setBlockState(pos, Blocks.STONE.defaultState)
+                            BlockTags.LOGS.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
+                            BlockTags.LEAVES.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
+                            BlockTags.ICE.contains(block) -> it.world.setBlockState(pos, Blocks.STONE.defaultState)
                         }
 
-                        if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water")))
+                        if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid))
                             it.world.setBlockState(pos, Blocks.LAVA.defaultState)
 
 
@@ -218,7 +218,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                             block == Blocks.NETHERRACK -> it.world.setBlockState(pos, Blocks.DIRT.defaultState)
                         }
 
-                        if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:lava")))
+                        if (FluidTags.LAVA.contains(it.world.getFluidState(pos).fluid))
                             it.world.setBlockState(pos, Blocks.WATER.defaultState)
 
 
@@ -279,7 +279,6 @@ fun glassingRay(radius: Double): ExplosionFunction {
                 .forEach { pos ->
                     val blockstate = it.world.getBlockState(pos)
                     val block = blockstate.block
-                    val tags = block.tags
 
                     if (blockstate.isAir(it.world, pos)) {
                         if (it.world.rand.nextBoolean())
@@ -287,15 +286,15 @@ fun glassingRay(radius: Double): ExplosionFunction {
                         return@forEach
                     }
 
-                    if (tags.contains(ResourceLocation("minecraft:ice"))) {
+                    if (BlockTags.ICE.contains(block)) {
                         it.world.removeBlock(pos, false)
                         for (i in 0..20)
                             it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
-                    } else if (tags.contains(ResourceLocation("minecraft:sand"))) {
+                    } else if (BlockTags.SAND.contains(block)) {
                         it.world.setBlockState(pos, Tags.Blocks.GLASS.getRandomElement(it.world.rand).defaultState)
-                    } else if (tags.contains(ResourceLocation("forge:gravel"))) {
+                    } else if (Tags.Blocks.GRAVEL.contains(block)) {
                         it.world.setBlockState(pos, Tags.Blocks.STONE.getRandomElement(it.world.rand).defaultState)
-                    } else if (tags.contains(ResourceLocation("forge:stone"))) {
+                    } else if (Tags.Blocks.STONE.contains(block)) {
                         if (it.world.rand.nextBoolean())
                             it.world.setBlockState(pos, Blocks.LAVA.defaultState)
                         else
@@ -309,7 +308,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
                             it.world.setBlockState(pos, Blocks.COARSE_DIRT.defaultState)
                     }
 
-                    if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water"))) {
+                    if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid)) {
                         it.world.setBlockState(pos, Blocks.AIR.defaultState)
                         for (i in 0..20)
                             it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)

@@ -5,7 +5,7 @@ import net.minecraft.block.GrassBlock
 import net.minecraft.block.IGrowable
 import net.minecraft.block.VineBlock
 import net.minecraft.entity.Entity
-import net.minecraft.util.ResourceLocation
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -14,7 +14,7 @@ import net.minecraftforge.common.IPlantable
 import kotlin.math.pow
 
 fun BlockState.isVegetation(): Boolean {
-    if (this.block.tags.contains(ResourceLocation("minecraft:leaves")))
+    if (BlockTags.LEAVES.contains(this.block))
         return true
     if (this.block is IPlantable)
         return true
