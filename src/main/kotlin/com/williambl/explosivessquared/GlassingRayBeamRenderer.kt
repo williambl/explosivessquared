@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 
 class GlassingRayBeamRenderer(rendererManager: EntityRendererManager): EntityRenderer<GlassingRayBeamEntity>(rendererManager) {
-    private val TEXTURE_BEACON_BEAM = ResourceLocation("textures/entity/beacon_beam.png")
+    private val TEXTURE_BEACON_BEAM = ResourceLocation(ExplosivesSquared.modid, "textures/entity/glassing_ray_beam.png")
     private val COLOR = floatArrayOf(1.0f, 1.0f, 1.0f)
 
     override fun doRender(entity: GlassingRayBeamEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
