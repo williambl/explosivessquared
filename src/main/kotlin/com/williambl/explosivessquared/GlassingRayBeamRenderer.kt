@@ -5,13 +5,12 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.tileentity.BeaconTileEntity
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 
 class GlassingRayBeamRenderer(rendererManager: EntityRendererManager): EntityRenderer<GlassingRayBeamEntity>(rendererManager) {
     private val TEXTURE_BEACON_BEAM = ResourceLocation("textures/entity/beacon_beam.png")
-    private val COLOR = floatArrayOf(1.0f, 0.9f, 0.7f)
+    private val COLOR = floatArrayOf(1.0f, 1.0f, 1.0f)
 
     override fun doRender(entity: GlassingRayBeamEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
         bindEntityTexture(entity)
@@ -32,7 +31,7 @@ class GlassingRayBeamRenderer(rendererManager: EntityRendererManager): EntityRen
     }
 
     private fun renderBeamSegement(x: Double, y: Double, z: Double, partialTicks: Double, time: Long, yOffset: Int, height: Int, colors: FloatArray, timeLeft: Int) {
-        renderBeamSegment(x, y, z, partialTicks, 1.0, time, yOffset, height, colors, timeLeft*0.1, timeLeft*0.15)
+        renderBeamSegment(x, y, z, partialTicks, 1.0, time, yOffset, height, colors, timeLeft * 0.2, timeLeft * 0.225)
     }
 
     fun renderBeamSegment(x: Double, y: Double, z: Double, partialTicks: Double, textureScale: Double, totalWorldTime: Long, yOffset: Int, height: Int, colors: FloatArray, beamRadius: Double, glowRadius: Double) {

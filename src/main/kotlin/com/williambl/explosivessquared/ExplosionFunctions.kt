@@ -11,6 +11,7 @@ import net.minecraft.entity.monster.SlimeEntity
 import net.minecraft.entity.monster.ZombiePigmanEntity
 import net.minecraft.entity.passive.PigEntity
 import net.minecraft.particles.ParticleTypes
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.DamageSource
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
@@ -281,17 +282,15 @@ fun glassingRay(radius: Double): ExplosionFunction {
                     val tags = block.tags
 
                     if (blockstate.isAir(it.world, pos)) {
-                        it.world.setBlockState(pos, Blocks.FIRE.defaultState)
+                        if (it.world.rand.nextBoolean())
+                            it.world.setBlockState(pos, Blocks.FIRE.defaultState)
                         return@forEach
                     }
 
-                    when (blockstate.block) {
-                        Blocks.SAND -> it.world.setBlockState(pos, Blocks.GLASS.defaultState)
-                    }
                     if (tags.contains(ResourceLocation("minecraft:ice"))) {
                         it.world.removeBlock(pos, false)
                         for (i in 0..20)
-                            it.world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
+                            it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
                     } else if (tags.contains(ResourceLocation("minecraft:sand"))) {
                         it.world.setBlockState(pos, Tags.Blocks.GLASS.getRandomElement(it.world.rand).defaultState)
                     } else if (tags.contains(ResourceLocation("forge:gravel"))) {
@@ -303,12 +302,17 @@ fun glassingRay(radius: Double): ExplosionFunction {
                             it.world.setBlockState(pos, Blocks.OBSIDIAN.defaultState)
                     } else if (block == Blocks.CLAY) {
                         it.world.setBlockState(pos, Blocks.TERRACOTTA.defaultState)
+                    } else if (BlockTags.DIRT_LIKE.contains(block)) {
+                        if (it.world.rand.nextBoolean())
+                            it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
+                        else
+                            it.world.setBlockState(pos, Blocks.COARSE_DIRT.defaultState)
                     }
 
                     if (it.world.getFluidState(pos).fluid.tags.contains(ResourceLocation("minecraft:water"))) {
                         it.world.setBlockState(pos, Blocks.AIR.defaultState)
                         for (i in 0..20)
-                            it.world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
+                            it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
                     }
                 }
         it.world.addEntity(GlassingRayBeamEntity(EntityTypeHolder.glassingRayBeam, it.world, it.posX, it.posY, it.posZ))

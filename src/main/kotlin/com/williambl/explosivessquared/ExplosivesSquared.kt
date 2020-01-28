@@ -49,7 +49,7 @@ object ExplosivesSquared {
             ExplosiveType("nether_bomb")
                     .setExplodeFunction(netherExplosion(8.0)),
             ExplosiveType("glassing_ray")
-                    .setExplodeFunction(glassingRay(8.0))
+                    .setExplodeFunction(glassingRay(16.0))
     )
 
     lateinit var explosiveMap: Map<String, ExplosiveType>
