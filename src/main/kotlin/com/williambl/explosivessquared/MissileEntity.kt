@@ -61,7 +61,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         }
 
         if (motion.lengthSquared() > 0.01)
-            this.setRotation((atan2(motion.x, motion.z) * 57.3).toFloat() + 90f, (atan2(sqrt(motion.x.pow(2) + motion.z.pow(2)), motion.y) * 57.3f).toFloat())
+            this.setRotation(atan2(motion.x, motion.z).toFloat(), atan2(sqrt(motion.x.pow(2) + motion.z.pow(2)), motion.y).toFloat())
 
         setFuse(getFuse() - 1)
         if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
