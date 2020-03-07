@@ -1,9 +1,6 @@
 {
   "variants": {
-    "unstable=false": {
-      "model": "explosivessquared:block/attractor_tnt_missile"
-    },
-    "unstable=true": {
+    "": {
       "model": "explosivessquared:block/attractor_tnt_missile"
     }
   }

@@ -37,7 +37,7 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
     private fun makeBasicItemModel(item: Item, texture: ResourceLocation) {
         val path = item.registryName!!.path
         getBuilder(path)
-                .parent(ModelFile.UncheckedModelFile(modLoc("item/generator")))
+                .parent(ModelFile.UncheckedModelFile(mcLoc("item/generated")))
                 .texture("layer0", texture)
     }
 }
@@ -45,7 +45,7 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
 class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) : BlockStateProvider(gen, ExplosivesSquared.modid, existingFileHelper) {
     override fun registerStatesAndModels() {
         ExplosivesSquared.explosives.forEach {
-            makeCubeBlockState(it.block, modLoc("block/explosive/${it.name}"))
+            makeCubeBlockState(it.block, modLoc("block/explosive/explosive"))
             makeMissileBlockState(it.missileBlock)
         }
     }

@@ -1,6 +1,6 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "explosivessquared:block/explosive/gravitationaliser"
+    "all": "explosivessquared:block/explosive/explosive"
   }
 }

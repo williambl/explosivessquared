@@ -1,6 +1,6 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "explosivessquared:block/explosive/vegetation_destroyer"
+    "all": "explosivessquared:block/explosive/explosive"
   }
 }

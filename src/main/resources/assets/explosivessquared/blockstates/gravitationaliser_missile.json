@@ -1,9 +1,6 @@
 {
   "variants": {
-    "unstable=false": {
-      "model": "explosivessquared:block/gravitationaliser_missile"
-    },
-    "unstable=true": {
+    "": {
       "model": "explosivessquared:block/gravitationaliser_missile"
     }
   }
