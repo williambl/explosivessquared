@@ -165,7 +165,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                             Tags.Blocks.SAND.contains(block) -> it.world.setBlockState(pos, Blocks.SOUL_SAND.defaultState)
                             block == Blocks.CLAY -> it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
                             block == Blocks.BRICKS -> it.world.setBlockState(pos, Blocks.NETHER_BRICKS.defaultState)
-                            BlockTags.DIRT_LIKE.contains(block) -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
+                            block == Blocks.DIRT -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
                             block is IGrowable -> it.world.setBlockState(pos, Blocks.NETHER_WART.defaultState)
                             BlockTags.LOGS.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
                             BlockTags.LEAVES.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
@@ -254,7 +254,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     }
         }
 
-        val blockPlacingPos = BlockPos.MutableBlockPos(it.position)
+        val blockPlacingPos = BlockPos.Mutable(it.position)
         blockPlacingPos.move(Direction.UP).move(Direction.UP).move(Direction.UP)
         it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
         it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
@@ -301,7 +301,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
                             it.world.setBlockState(pos, Blocks.OBSIDIAN.defaultState)
                     } else if (block == Blocks.CLAY) {
                         it.world.setBlockState(pos, Blocks.TERRACOTTA.defaultState)
-                    } else if (BlockTags.DIRT_LIKE.contains(block)) {
+                    } else if (block == Blocks.DIRT) {
                         if (it.world.rand.nextBoolean())
                             it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
                         else

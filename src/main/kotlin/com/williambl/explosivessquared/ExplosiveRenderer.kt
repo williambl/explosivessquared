@@ -1,12 +1,16 @@
 package com.williambl.explosivessquared
 
+import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
+import net.minecraft.client.renderer.entity.TNTMinecartRenderer
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.ResourceLocation
@@ -14,13 +18,13 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import java.util.*
 
-class ExplosiveRenderer(renderManagerIn: EntityRendererManager) : EntityRenderer<ExplosiveEntity>(renderManagerIn) {
+class ExplosiveRenderer(renderManager: EntityRendererManager) : EntityRenderer<ExplosiveEntity>(renderManager) {
 
     init {
         this.shadowSize = 0.5f
     }
 
-    override fun doRender(entity: ExplosiveEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
+    override fun render(entity: ExplosiveEntity, entityYaw: Float, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, packedLight: Int) {
         val blockstate =
                 if (entity is MissileEntity)
                     ExplosivesSquared.explosiveMap[entity.type.registryName!!.path.dropLast(8)]?.missileBlock?.defaultState
@@ -32,18 +36,22 @@ class ExplosiveRenderer(renderManagerIn: EntityRendererManager) : EntityRenderer
         if (blockstate.renderType == BlockRenderType.MODEL) {
             val world = entity.world
             if (blockstate !== world.getBlockState(BlockPos(entity)) && blockstate.renderType != BlockRenderType.INVISIBLE) {
-                this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-                GlStateManager.pushMatrix()
-                GlStateManager.disableLighting()
-                val tessellator = Tessellator.getInstance()
-                val bufferbuilder = tessellator.buffer
-                if (this.renderOutlines) {
-                    GlStateManager.enableColorMaterial()
-                    GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(entity))
+                matrixStack.push()
+                matrixStack.translate(0.0, 0.5, 0.0)
+                if (entity.getFuse().toFloat() - partialTicks + 1.0f < 10.0f) {
+                    var f = 1.0f - (entity.getFuse().toFloat() - partialTicks + 1.0f) / 10.0f
+                    f = MathHelper.clamp(f, 0.0f, 1.0f)
+                    f *= f * f
+                    val f1 = 1.0f + f * 0.3f
+                    matrixStack.scale(f1, f1, f1)
                 }
 
-                bufferbuilder.begin(7, DefaultVertexFormats.BLOCK)
-                val blockpos = BlockPos(entity.posX, entity.posY, entity.posZ)
+                matrixStack.rotate(Vector3f.YP.rotationDegrees(-90.0f))
+                matrixStack.translate(-0.5, -0.5, 0.5)
+                matrixStack.rotate(Vector3f.YP.rotationDegrees(90.0f))
+                TNTMinecartRenderer.renderTntFlash(Blocks.TNT.defaultState, matrixStack, buffer, packedLight, entity.getFuse() / 5 % 2 == 0)
+                matrixStack.pop()
+                super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight)
 
                 /*
                  * The following translate calls were originally one:
@@ -63,23 +71,6 @@ class ExplosiveRenderer(renderManagerIn: EntityRendererManager) : EntityRenderer
                  *  As you can see, it is still the same translation.
                  */
 
-                GlStateManager.translated(x, y, z)
-                GlStateManager.rotatef(MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw), 0f, 1f, 0f)
-                GlStateManager.translatef(-0.5f, 0f, -0.5f)
-                GlStateManager.rotatef(MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch), 0.0f, 0.0f, 1.0f)
-                GlStateManager.translatef(-blockpos.x.toFloat(), -blockpos.y.toFloat(), -blockpos.z.toFloat())
-
-                val blockrendererdispatcher = Minecraft.getInstance().blockRendererDispatcher
-                blockrendererdispatcher.blockModelRenderer.renderModel(world, blockrendererdispatcher.getModelForState(blockstate), blockstate, blockpos, bufferbuilder, false, Random(), blockstate.getPositionRandom(entity.position))
-                tessellator.draw()
-                if (this.renderOutlines) {
-                    GlStateManager.tearDownSolidRenderingTextureCombine()
-                    GlStateManager.disableColorMaterial()
-                }
-
-                GlStateManager.enableLighting()
-                GlStateManager.popMatrix()
-                super.doRender(entity, x, y, z, entityYaw, partialTicks)
             }
         }
     }

@@ -10,6 +10,7 @@ import net.minecraft.entity.projectile.AbstractArrowEntity
 import net.minecraft.item.Items
 import net.minecraft.state.StateContainer
 import net.minecraft.state.properties.BlockStateProperties
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvents
@@ -73,11 +74,11 @@ open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Block.Pr
         }
     }
 
-    override fun onBlockActivated(state: BlockState?, world: World?, pos: BlockPos?, player: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult?): Boolean {
+    override fun onBlockActivated(state: BlockState?, world: World?, pos: BlockPos?, player: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult?): ActionResultType {
         val itemstack = player.getHeldItem(hand)
         val item = itemstack.item
-        if (item !== Items.FLINT_AND_STEEL && item !== Items.FIRE_CHARGE) {
-            return super.onBlockActivated(state, world, pos, player, hand, hit)
+        return if (item !== Items.FLINT_AND_STEEL && item !== Items.FIRE_CHARGE) {
+            super.onBlockActivated(state, world, pos, player, hand, hit)
         } else {
             explode(world!!, pos!!, player)
             world.setBlockState(pos, Blocks.AIR.defaultState, 11)
@@ -87,7 +88,7 @@ open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Block.Pr
                 itemstack.shrink(1)
             }
 
-            return true
+            ActionResultType.SUCCESS
         }
     }
 

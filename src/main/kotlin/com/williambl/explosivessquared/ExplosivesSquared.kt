@@ -1,7 +1,10 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import net.alexwells.kottle.KotlinEventBusSubscriber
 import net.minecraft.block.Block
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.RenderTypeLookup
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
@@ -21,7 +24,7 @@ import org.apache.logging.log4j.LogManager
 import java.util.function.Supplier
 
 @Mod(ExplosivesSquared.modid)
-@KotlinEventBusSubscriber(modid = ExplosivesSquared.modid, bus = KotlinEventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = ExplosivesSquared.modid, bus = Mod.EventBusSubscriber.Bus.MOD)
 object ExplosivesSquared {
 
     const val modid = "explosivessquared"
@@ -57,13 +60,18 @@ object ExplosivesSquared {
     @SubscribeEvent
     public fun setup(event: FMLCommonSetupEvent) {
         explosiveMap = explosives.map { it.name to it }.toMap()
+        explosives.forEach {
+            RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
+        }
     }
 
     @SubscribeEvent
     public fun doClientStuff(event: FMLClientSetupEvent) {
-        RenderingRegistry.registerEntityRenderingHandler(ExplosiveEntity::class.java, ::ExplosiveRenderer)
-        RenderingRegistry.registerEntityRenderingHandler(MissileEntity::class.java, ::ExplosiveRenderer)
-        RenderingRegistry.registerEntityRenderingHandler(GlassingRayBeamEntity::class.java, ::GlassingRayBeamRenderer)
+        explosives.forEach {
+            RenderingRegistry.registerEntityRenderingHandler(it.entityType, ::ExplosiveRenderer)
+            RenderingRegistry.registerEntityRenderingHandler(it.missileEntityType, ::ExplosiveRenderer)
+        }
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeHolder.glassingRayBeam, ::GlassingRayBeamRenderer)
     }
 
     @SubscribeEvent

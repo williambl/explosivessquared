@@ -14,7 +14,7 @@ import net.minecraft.world.World
 class TargeterItem(properties: Properties) : Item(properties) {
 
     override fun onItemUse(context: ItemUseContext): ActionResultType {
-        if (context.isPlacerSneaking) {
+        if (context.func_225518_g_()) {
             val tileEntity: TileEntity? = context.world.getTileEntity(context.pos)
             if (tileEntity != null && tileEntity is MissileTileEntity) {
                 if (context.item.getOrCreateChildTag("ExplosivesSquared").contains("Target")) {

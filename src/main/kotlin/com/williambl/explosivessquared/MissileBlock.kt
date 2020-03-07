@@ -3,6 +3,7 @@ package com.williambl.explosivessquared
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -10,7 +11,7 @@ import net.minecraft.entity.projectile.AbstractArrowEntity
 import net.minecraft.item.Items
 import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.BlockRenderLayer
+import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
@@ -28,10 +29,6 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
 
     override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {
         return MissileTileEntity()
-    }
-
-    override fun getRenderLayer(): BlockRenderLayer {
-        return BlockRenderLayer.CUTOUT
     }
 
     override fun getShape(state: BlockState, worldIn: IBlockReader, pos: BlockPos, context: ISelectionContext): VoxelShape {
@@ -74,7 +71,7 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
         super.onBlockHarvested(world, pos, state, player)
     }
 
-    override fun onBlockActivated(state: BlockState?, world: World?, pos: BlockPos?, player: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult?): Boolean {
+    override fun onBlockActivated(state: BlockState?, world: World?, pos: BlockPos?, player: PlayerEntity, hand: Hand?, hit: BlockRayTraceResult?): ActionResultType {
         val itemstack = player.getHeldItem(hand)
         val item = itemstack.item
         if (item !== Items.FLINT_AND_STEEL && item !== Items.FIRE_CHARGE) {
@@ -88,7 +85,7 @@ open class MissileBlock(val explosiveType: ExplosiveType, properties: Block.Prop
                 itemstack.shrink(1)
             }
 
-            return true
+            return ActionResultType.SUCCESS
         }
     }
 

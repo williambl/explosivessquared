@@ -51,25 +51,23 @@ class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) 
     }
 
     private fun makeCubeBlockState(block: Block, texture: ResourceLocation) {
-        val model = getBuilder(block.registryName!!.path)
-                .parent(getExistingFile(mcLoc("block/cube_all")))
+        val model = models().getBuilder(block.registryName!!.path)
+                .parent(models().getExistingFile(mcLoc("block/cube_all")))
                 .texture("all", texture)
-        getVariantBuilder(block).forAllStates { state -> ConfiguredModel.builder().modelFile(model).build() }
+        getVariantBuilder(block).forAllStates { ConfiguredModel.builder().modelFile(model).build() }
     }
 
     private fun makeMissileBlockState(block: Block,
                                       bodyTexture: ResourceLocation = modLoc("block/missile/body"),
                                       engineTexture: ResourceLocation = modLoc("block/missile/engine"),
                                       topTexture: ResourceLocation = modLoc("block/missile/top")) {
-        val model = getBuilder(block.registryName!!.path)
-                .parent(getExistingFile(modLoc("block/missile")))
+        val model = models().getBuilder(block.registryName!!.path)
+                .parent(models().getExistingFile(modLoc("block/missile")))
                 .texture("body", bodyTexture)
                 .texture("engine", engineTexture)
                 .texture("top", topTexture)
-        getVariantBuilder(block).forAllStates { state -> ConfiguredModel.builder().modelFile(model).build() }
+        getVariantBuilder(block).forAllStates { ConfiguredModel.builder().modelFile(model).build() }
     }
-
-
 }
 
 class LootTables(val generator: DataGenerator) : LootTableProvider(generator) {

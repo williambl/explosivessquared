@@ -1,122 +1,86 @@
 package com.williambl.explosivessquared
 
-import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.renderer.Tessellator
+import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.IVertexBuilder
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.renderer.tileentity.BeaconTileEntityRenderer
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.MathHelper
 
 class GlassingRayBeamRenderer(rendererManager: EntityRendererManager): EntityRenderer<GlassingRayBeamEntity>(rendererManager) {
-    private val TEXTURE_BEACON_BEAM = ResourceLocation(ExplosivesSquared.modid, "textures/entity/glassing_ray_beam.png")
-    private val COLOR = floatArrayOf(1.0f, 1.0f, 1.0f)
+    private val texture = ResourceLocation(ExplosivesSquared.modid, "textures/entity/glassing_ray_beam.png")
+    private val color = floatArrayOf(1.0f, 1.0f, 1.0f)
 
-    override fun doRender(entity: GlassingRayBeamEntity, x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) {
-        bindEntityTexture(entity)
-        renderBeam(x, y, z, partialTicks.toDouble(), entity.world.gameTime, entity.getTimeLeft())
+    override fun render(entity: GlassingRayBeamEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, packedLightIn: Int) {
+        renderBeamSegment(matrixStackIn, bufferIn, partialTicks, entity.world!!.gameTime, color, entity.getTimeLeft())
     }
 
     override fun getEntityTexture(entity: GlassingRayBeamEntity): ResourceLocation? {
-        return TEXTURE_BEACON_BEAM
+        return texture
     }
 
-    private fun renderBeam(x: Double, y: Double, z: Double, partialTicks: Double, time: Long, timeLeft: Int) {
-        GlStateManager.alphaFunc(516, 0.1f)
-        GlStateManager.disableFog()
-        GlStateManager.disableLighting()
-        renderBeamSegement(x, y, z, partialTicks, time, 0, 1024, COLOR, timeLeft)
-        GlStateManager.enableLighting()
-        GlStateManager.enableFog()
+    private fun renderBeamSegment(matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, partialTicks: Float, totalWorldTime: Long, colors: FloatArray, timeLeft: Int) {
+        renderBeamSegment(matrixStackIn, bufferIn, BeaconTileEntityRenderer.TEXTURE_BEACON_BEAM, partialTicks, 1.0f, totalWorldTime, 0, 1024, colors, timeLeft * 0.2f, timeLeft * 0.225f)
     }
 
-    private fun renderBeamSegement(x: Double, y: Double, z: Double, partialTicks: Double, time: Long, yOffset: Int, height: Int, colors: FloatArray, timeLeft: Int) {
-        renderBeamSegment(x, y, z, partialTicks, 1.0, time, yOffset, height, colors, timeLeft * 0.2, timeLeft * 0.225)
-    }
-
-    fun renderBeamSegment(x: Double, y: Double, z: Double, partialTicks: Double, textureScale: Double, totalWorldTime: Long, yOffset: Int, height: Int, colors: FloatArray, beamRadius: Double, glowRadius: Double) {
+    private fun renderBeamSegment(matrixStackIn: MatrixStack, bufferIn: IRenderTypeBuffer, textureLocation: ResourceLocation?, partialTicks: Float, textureScale: Float, totalWorldTime: Long, yOffset: Int, height: Int, colors: FloatArray, beamRadius: Float, glowRadius: Float) {
         val i = yOffset + height
-        GlStateManager.texParameter(3553, 10242, 10497)
-        GlStateManager.texParameter(3553, 10243, 10497)
-        GlStateManager.disableLighting()
-        GlStateManager.disableCull()
-        GlStateManager.disableBlend()
-        GlStateManager.depthMask(true)
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
-        GlStateManager.pushMatrix()
-        GlStateManager.translated(x + 0.5, y, z + 0.5)
-        val tessellator = Tessellator.getInstance()
-        val bufferbuilder = tessellator.buffer
-        val d0 = Math.floorMod(totalWorldTime, 40L).toDouble() + partialTicks
-        val d1 = if (height < 0) d0 else -d0
-        val d2 = MathHelper.frac(d1 * 0.2 - MathHelper.floor(d1 * 0.1).toDouble())
-        val f = colors[0]
-        val f1 = colors[1]
-        val f2 = colors[2]
-        GlStateManager.pushMatrix()
-        GlStateManager.rotated(d0 * 2.25 - 45.0, 0.0, 1.0, 0.0)
-        var d3 = 0.0
-        var d5 = 0.0
-        var d6 = -beamRadius
-        val d7 = 0.0
-        val d8 = 0.0
-        val d9 = -beamRadius
-        var d10 = 0.0
-        var d11 = 1.0
-        var d12 = -1.0 + d2
-        var d13 = height.toDouble() * textureScale * (0.5 / beamRadius) + d12
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(0.0, i.toDouble(), beamRadius).tex(1.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, yOffset.toDouble(), beamRadius).tex(1.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(beamRadius, yOffset.toDouble(), 0.0).tex(0.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(beamRadius, i.toDouble(), 0.0).tex(0.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, i.toDouble(), d9).tex(1.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, yOffset.toDouble(), d9).tex(1.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(d6, yOffset.toDouble(), 0.0).tex(0.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(d6, i.toDouble(), 0.0).tex(0.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(beamRadius, i.toDouble(), 0.0).tex(1.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(beamRadius, yOffset.toDouble(), 0.0).tex(1.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, yOffset.toDouble(), d9).tex(0.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, i.toDouble(), d9).tex(0.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(d6, i.toDouble(), 0.0).tex(1.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(d6, yOffset.toDouble(), 0.0).tex(1.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, yOffset.toDouble(), beamRadius).tex(0.0, d12).color(f, f1, f2, 1.0f).endVertex()
-        bufferbuilder.pos(0.0, i.toDouble(), beamRadius).tex(0.0, d13).color(f, f1, f2, 1.0f).endVertex()
-        tessellator.draw()
-        GlStateManager.popMatrix()
-        GlStateManager.enableBlend()
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
-        GlStateManager.depthMask(false)
-        d3 = -glowRadius
-        val d4 = -glowRadius
-        d5 = -glowRadius
-        d6 = -glowRadius
-        d10 = 0.0
-        d11 = 1.0
-        d12 = -1.0 + d2
-        d13 = height.toDouble() * textureScale + d12
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        bufferbuilder.pos(d3, i.toDouble(), d4).tex(1.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d3, yOffset.toDouble(), d4).tex(1.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, yOffset.toDouble(), d5).tex(0.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, i.toDouble(), d5).tex(0.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, i.toDouble(), glowRadius).tex(1.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, yOffset.toDouble(), glowRadius).tex(1.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d6, yOffset.toDouble(), glowRadius).tex(0.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d6, i.toDouble(), glowRadius).tex(0.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, i.toDouble(), d5).tex(1.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, yOffset.toDouble(), d5).tex(1.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, yOffset.toDouble(), glowRadius).tex(0.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(glowRadius, i.toDouble(), glowRadius).tex(0.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d6, i.toDouble(), glowRadius).tex(1.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d6, yOffset.toDouble(), glowRadius).tex(1.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d3, yOffset.toDouble(), d4).tex(0.0, d12).color(f, f1, f2, 0.125f).endVertex()
-        bufferbuilder.pos(d3, i.toDouble(), d4).tex(0.0, d13).color(f, f1, f2, 0.125f).endVertex()
-        tessellator.draw()
-        GlStateManager.popMatrix()
-        GlStateManager.enableLighting()
-        GlStateManager.enableTexture()
-        GlStateManager.depthMask(true)
+        matrixStackIn.push()
+        matrixStackIn.translate(0.5, 0.0, 0.5)
+        val f = Math.floorMod(totalWorldTime, 40L).toFloat() + partialTicks
+        val f1 = if (height < 0) f else -f
+        val f2 = MathHelper.frac(f1 * 0.2f - MathHelper.floor(f1 * 0.1f).toFloat())
+        val f3 = colors[0]
+        val f4 = colors[1]
+        val f5 = colors[2]
+        matrixStackIn.push()
+        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(f * 2.25f - 45.0f))
+        var f6 = 0.0f
+        var f8 = 0.0f
+        var f9 = -beamRadius
+        val f10 = 0.0f
+        val f11 = 0.0f
+        val f12 = -beamRadius
+        var f13 = 0.0f
+        var f14 = 1.0f
+        var f15 = -1.0f + f2
+        var f16 = height.toFloat() * textureScale * (0.5f / beamRadius) + f15
+        renderPart(matrixStackIn, bufferIn.getBuffer(RenderType.getBeaconBeam(textureLocation, false)), f3, f4, f5, 1.0f, yOffset, i, 0.0f, beamRadius, beamRadius, 0.0f, f9, 0.0f, 0.0f, f12, 0.0f, 1.0f, f16, f15)
+        matrixStackIn.pop()
+        f6 = -glowRadius
+        val f7 = -glowRadius
+        f8 = -glowRadius
+        f9 = -glowRadius
+        f13 = 0.0f
+        f14 = 1.0f
+        f15 = -1.0f + f2
+        f16 = height.toFloat() * textureScale + f15
+        renderPart(matrixStackIn, bufferIn.getBuffer(RenderType.getBeaconBeam(textureLocation, true)), f3, f4, f5, 0.125f, yOffset, i, f6, f7, glowRadius, f8, f9, glowRadius, glowRadius, glowRadius, 0.0f, 1.0f, f16, f15)
+        matrixStackIn.pop()
+    }
+
+    private fun renderPart(matrixStackIn: MatrixStack, bufferIn: IVertexBuilder, red: Float, green: Float, blue: Float, alpha: Float, yMin: Int, yMax: Int, p_228840_8_: Float, p_228840_9_: Float, p_228840_10_: Float, p_228840_11_: Float, p_228840_12_: Float, p_228840_13_: Float, p_228840_14_: Float, p_228840_15_: Float, u1: Float, u2: Float, v1: Float, v2: Float) {
+        val entry = matrixStackIn.last
+        val matrix4f = entry.matrix
+        val matrix3f = entry.normal
+        addQuad(matrix4f, matrix3f, bufferIn, red, green, blue, alpha, yMin, yMax, p_228840_8_, p_228840_9_, p_228840_10_, p_228840_11_, u1, u2, v1, v2)
+        addQuad(matrix4f, matrix3f, bufferIn, red, green, blue, alpha, yMin, yMax, p_228840_14_, p_228840_15_, p_228840_12_, p_228840_13_, u1, u2, v1, v2)
+        addQuad(matrix4f, matrix3f, bufferIn, red, green, blue, alpha, yMin, yMax, p_228840_10_, p_228840_11_, p_228840_14_, p_228840_15_, u1, u2, v1, v2)
+        addQuad(matrix4f, matrix3f, bufferIn, red, green, blue, alpha, yMin, yMax, p_228840_12_, p_228840_13_, p_228840_8_, p_228840_9_, u1, u2, v1, v2)
+    }
+
+    private fun addQuad(matrixPos: Matrix4f, matrixNormal: Matrix3f, bufferIn: IVertexBuilder, red: Float, green: Float, blue: Float, alpha: Float, yMin: Int, yMax: Int, x1: Float, z1: Float, x2: Float, z2: Float, u1: Float, u2: Float, v1: Float, v2: Float) {
+        addVertex(matrixPos, matrixNormal, bufferIn, red, green, blue, alpha, yMax, x1, z1, u2, v1)
+        addVertex(matrixPos, matrixNormal, bufferIn, red, green, blue, alpha, yMin, x1, z1, u2, v2)
+        addVertex(matrixPos, matrixNormal, bufferIn, red, green, blue, alpha, yMin, x2, z2, u1, v2)
+        addVertex(matrixPos, matrixNormal, bufferIn, red, green, blue, alpha, yMax, x2, z2, u1, v1)
+    }
+
+    private fun addVertex(matrixPos: Matrix4f, matrixNormal: Matrix3f, bufferIn: IVertexBuilder, red: Float, green: Float, blue: Float, alpha: Float, y: Int, x: Float, z: Float, texU: Float, texV: Float) {
+        bufferIn.pos(matrixPos, x, y.toFloat(), z).color(red, green, blue, alpha).tex(texU, texV).overlay(OverlayTexture.NO_OVERLAY).lightmap(15728880).normal(matrixNormal, 0.0f, 1.0f, 0.0f).endVertex()
     }
 
 }
