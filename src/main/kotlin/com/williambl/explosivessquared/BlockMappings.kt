@@ -4,8 +4,9 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.tags.Tag
+import java.util.*
 
-class BlockMappings {
+class BlockMappings(val random: Random) {
 
     private val mappings: MutableList<Mapping> = mutableListOf()
 
@@ -40,7 +41,7 @@ class BlockMappings {
     }
 
     public fun process(input: BlockState): BlockState {
-        return mappings.firstOrNull { it.matches(input) }?.process() ?: input
+        return mappings.firstOrNull { it.matches(input) }?.process(random) ?: input
     }
 
     private class Mapping(val predicate: ((BlockState) -> Boolean)? = null, tagInput: Tag<Block>? = null, blockInput: Block? = null,
@@ -53,8 +54,8 @@ class BlockMappings {
             return predicate?.invoke(input) ?: inputs.contains(input.block)
         }
 
-        fun process(): BlockState {
-            return outputs.random().defaultState
+        fun process(random: Random): BlockState {
+            return outputs[random.nextInt(outputs.size)].defaultState
         }
     }
 

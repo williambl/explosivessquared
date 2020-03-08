@@ -6,6 +6,7 @@ import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
+import net.minecraft.block.SpreadableSnowyDirtBlock
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
@@ -32,7 +33,7 @@ fun regularExplosion(radius: Float): ExplosionFunction {
 
 fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
     return {
-        val mappings = BlockMappings()
+        val mappings = BlockMappings(it.world.rand)
                 .addMapping(BlockState::isGrass, Blocks.DIRT)
                 .addMapping({ state -> !state.isGrass() }, Blocks.AIR)
 
@@ -120,11 +121,11 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
 }
 
 fun frostExplosion(radius: Double): ExplosionFunction {
-    val mapping = BlockMappings()
+    return {
+        val mapping = BlockMappings(it.world.rand)
             .addMapping(Blocks.ICE, Blocks.PACKED_ICE)
             .addMapping(Blocks.FIRE, Blocks.AIR)
             .addMapping(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK)
-    return {
         it.position.getAllInSphere(radius.roundToInt())
                 .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                 .forEach { pos ->
@@ -161,7 +162,7 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 fun netherExplosion(radius: Double): ExplosionFunction {
     return {
         if (!it.world.dimension.isNether) {
-            val mapping = BlockMappings()
+            val mapping = BlockMappings(it.world.rand)
                     .addMapping(Tags.Blocks.SAND, Blocks.SOUL_SAND)
                     .addMapping(Blocks.CLAY, Blocks.MAGMA_BLOCK)
                     .addMapping(Blocks.BRICKS, Blocks.NETHER_BRICKS)
@@ -211,7 +212,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
                     }
         } else {
-            val mapping = BlockMappings()
+            val mapping = BlockMappings(it.world.rand)
                     .addMapping(Blocks.SOUL_SAND, Blocks.SAND)
                     .addMapping(Blocks.MAGMA_BLOCK, Blocks.CLAY)
                     .addMapping(Blocks.NETHER_BRICKS, Blocks.BRICKS)
@@ -278,10 +279,14 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
 fun glassingRay(radius: Double): ExplosionFunction {
     return {
-        val mapping = BlockMappings()
+        val mapping = BlockMappings(it.world.rand)
                 .addMapping(BlockTags.SAND, Tags.Blocks.GLASS)
                 .addMapping(Tags.Blocks.GRAVEL, Tags.Blocks.STONE)
                 .addMapping(Blocks.CLAY, Blocks.TERRACOTTA)
+                .addMapping({ state -> state.block is SpreadableSnowyDirtBlock }, Blocks.DIRT)
+                .addMapping(Blocks.GRASS_PATH, Blocks.COARSE_DIRT)
+                .addMapping(Blocks.COBBLESTONE, Blocks.STONE)
+
         it.position.getAllInSphere(radius.toInt())
                 .forEach { pos ->
                     val blockstate = it.world.getBlockState(pos)
