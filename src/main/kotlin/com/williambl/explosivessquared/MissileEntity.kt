@@ -67,7 +67,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
             this.remove()
             if (!this.world.isRemote) {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path]?.explodeFunction?.invoke(this)
+                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.explodeFunction?.invoke(this)
             }
         } else {
             this.handleWaterMovement()
