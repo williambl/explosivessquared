@@ -3,6 +3,7 @@ package com.williambl.explosivessquared
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.objectholders.EntityTypeHolder
+import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
 import net.minecraft.entity.EntityType
@@ -31,13 +32,14 @@ fun regularExplosion(radius: Float): ExplosionFunction {
 
 fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
     return {
+        val mappings = BlockMappings()
+                .addMapping(BlockState::isGrass, Blocks.DIRT)
+                .addMapping({ state -> !state.isGrass() }, Blocks.AIR)
+
         it.position.getAllInSphere(radius.roundToInt())
                 .filter { pos -> it.world.getBlockState(pos).isVegetation() }
                 .forEach { pos ->
-                    if (it.world.getBlockState(pos).isGrass())
-                        it.world.setBlockState(pos, Blocks.DIRT.defaultState)
-                    else
-                        it.world.destroyBlock(pos, false)
+                    it.world.setBlockState(pos, mappings.process(it.world.getBlockState(pos)))
                 }
     }
 }
@@ -118,15 +120,15 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
 }
 
 fun frostExplosion(radius: Double): ExplosionFunction {
+    val mapping = BlockMappings()
+            .addMapping(Blocks.ICE, Blocks.PACKED_ICE)
+            .addMapping(Blocks.FIRE, Blocks.AIR)
+            .addMapping(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK)
     return {
         it.position.getAllInSphere(radius.roundToInt())
                 .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                 .forEach { pos ->
-                    when (it.world.getBlockState(pos).block) {
-                        Blocks.ICE -> it.world.setBlockState(pos, Blocks.PACKED_ICE.defaultState)
-                        Blocks.FIRE -> it.world.removeBlock(pos, false)
-                        Blocks.MAGMA_BLOCK -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
-                    }
+                    it.world.setBlockState(pos, mapping.process(it.world.getBlockState(pos)))
 
                     if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid))
                         it.world.setBlockState(pos, Blocks.ICE.defaultState)
@@ -159,20 +161,20 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 fun netherExplosion(radius: Double): ExplosionFunction {
     return {
         if (!it.world.dimension.isNether) {
+            val mapping = BlockMappings()
+                    .addMapping(Tags.Blocks.SAND, Blocks.SOUL_SAND)
+                    .addMapping(Blocks.CLAY, Blocks.MAGMA_BLOCK)
+                    .addMapping(Blocks.BRICKS, Blocks.NETHER_BRICKS)
+                    .addMapping(Blocks.DIRT, Blocks.NETHERRACK)
+                    .addMapping({ state -> state.block is IGrowable }, Blocks.NETHER_WART)
+                    .addMapping(BlockTags.LOGS, Blocks.COBBLESTONE)
+                    .addMapping(BlockTags.LEAVES, Blocks.COBBLESTONE)
+                    .addMapping(BlockTags.ICE, Blocks.STONE)
             it.position.getAllInSphere(radius.roundToInt())
                     .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                     .forEach { pos ->
                         val block = it.world.getBlockState(pos).block
-                        when {
-                            Tags.Blocks.SAND.contains(block) -> it.world.setBlockState(pos, Blocks.SOUL_SAND.defaultState)
-                            block == Blocks.CLAY -> it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
-                            block == Blocks.BRICKS -> it.world.setBlockState(pos, Blocks.NETHER_BRICKS.defaultState)
-                            block == Blocks.DIRT -> it.world.setBlockState(pos, Blocks.NETHERRACK.defaultState)
-                            block is IGrowable -> it.world.setBlockState(pos, Blocks.NETHER_WART.defaultState)
-                            BlockTags.LOGS.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
-                            BlockTags.LEAVES.contains(block) -> it.world.setBlockState(pos, Blocks.COBBLESTONE.defaultState)
-                            BlockTags.ICE.contains(block) -> it.world.setBlockState(pos, Blocks.STONE.defaultState)
-                        }
+                        it.world.setBlockState(pos, mapping.process(it.world.getBlockState(pos)))
 
                         if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid))
                             it.world.setBlockState(pos, Blocks.LAVA.defaultState)
@@ -209,16 +211,15 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
                     }
         } else {
+            val mapping = BlockMappings()
+                    .addMapping(Blocks.SOUL_SAND, Blocks.SAND)
+                    .addMapping(Blocks.MAGMA_BLOCK, Blocks.CLAY)
+                    .addMapping(Blocks.NETHER_BRICKS, Blocks.BRICKS)
+                    .addMapping(Blocks.NETHERRACK, Blocks.DIRT)
             it.position.getAllInSphere(radius.roundToInt())
                     .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                     .forEach { pos ->
-                        val block = it.world.getBlockState(pos).block
-                        when {
-                            block == Blocks.SOUL_SAND -> it.world.setBlockState(pos, Blocks.SAND.defaultState)
-                            block == Blocks.MAGMA_BLOCK -> it.world.setBlockState(pos, Blocks.CLAY.defaultState)
-                            block == Blocks.NETHER_BRICKS -> it.world.setBlockState(pos, Blocks.BRICKS.defaultState)
-                            block == Blocks.NETHERRACK -> it.world.setBlockState(pos, Blocks.DIRT.defaultState)
-                        }
+                        it.world.setBlockState(pos, mapping.process(it.world.getBlockState(pos)))
 
                         if (FluidTags.LAVA.contains(it.world.getFluidState(pos).fluid))
                             it.world.setBlockState(pos, Blocks.WATER.defaultState)
@@ -277,6 +278,10 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
 fun glassingRay(radius: Double): ExplosionFunction {
     return {
+        val mapping = BlockMappings()
+                .addMapping(BlockTags.SAND, Tags.Blocks.GLASS)
+                .addMapping(Tags.Blocks.GRAVEL, Tags.Blocks.STONE)
+                .addMapping(Blocks.CLAY, Blocks.TERRACOTTA)
         it.position.getAllInSphere(radius.toInt())
                 .forEach { pos ->
                     val blockstate = it.world.getBlockState(pos)
@@ -292,23 +297,19 @@ fun glassingRay(radius: Double): ExplosionFunction {
                         it.world.removeBlock(pos, false)
                         for (i in 0..20)
                             it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
-                    } else if (BlockTags.SAND.contains(block)) {
-                        it.world.setBlockState(pos, Tags.Blocks.GLASS.getRandomElement(it.world.rand).defaultState)
-                    } else if (Tags.Blocks.GRAVEL.contains(block)) {
-                        it.world.setBlockState(pos, Tags.Blocks.STONE.getRandomElement(it.world.rand).defaultState)
                     } else if (Tags.Blocks.STONE.contains(block)) {
                         if (it.world.rand.nextBoolean())
                             it.world.setBlockState(pos, Blocks.LAVA.defaultState)
                         else
                             it.world.setBlockState(pos, Blocks.OBSIDIAN.defaultState)
-                    } else if (block == Blocks.CLAY) {
-                        it.world.setBlockState(pos, Blocks.TERRACOTTA.defaultState)
                     } else if (block == Blocks.DIRT) {
                         if (it.world.rand.nextBoolean())
                             it.world.setBlockState(pos, Blocks.MAGMA_BLOCK.defaultState)
                         else
                             it.world.setBlockState(pos, Blocks.COARSE_DIRT.defaultState)
                     }
+
+                    it.world.setBlockState(pos, mapping.process(blockstate))
 
                     if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid)) {
                         it.world.setBlockState(pos, Blocks.AIR.defaultState)
