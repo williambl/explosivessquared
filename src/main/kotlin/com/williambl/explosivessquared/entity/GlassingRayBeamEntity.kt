@@ -9,6 +9,8 @@ import net.minecraft.network.IPacket
 import net.minecraft.network.datasync.DataParameter
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
+import net.minecraft.util.DamageSource
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.NetworkHooks
 import kotlin.math.cos
@@ -39,6 +41,7 @@ open class GlassingRayBeamEntity(type: EntityType<out GlassingRayBeamEntity>, wo
         this.prevPosX = x
         this.prevPosY = y
         this.prevPosZ = z
+        this.boundingBox = AxisAlignedBB(x - 0.2 * timeLeft, 0.0, z - 0.2 * timeLeft, x + 0.2 * timeLeft, 256.0, z + 0.2 * timeLeft)
     }
 
     override fun registerData() {
@@ -53,6 +56,11 @@ open class GlassingRayBeamEntity(type: EntityType<out GlassingRayBeamEntity>, wo
         this.prevPosX = this.posX
         this.prevPosY = this.posY
         this.prevPosZ = this.posZ
+        this.boundingBox = AxisAlignedBB(this.posX - 0.2 * timeLeft, 0.0, this.posZ - 0.2 * timeLeft, this.posX + 0.2 * timeLeft, 256.0, this.posZ + 0.2 * timeLeft)
+        world.getEntitiesWithinAABBExcludingEntity(this, boundingBox).forEach {
+            it.attackEntityFrom(DamageSource.IN_FIRE, 10f)
+            it.setFire(40)
+        }
 
         --this.timeLeft
         if (this.timeLeft <= 0) {
