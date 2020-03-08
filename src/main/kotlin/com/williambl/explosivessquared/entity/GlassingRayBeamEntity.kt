@@ -1,6 +1,9 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.entity
 
-import net.minecraft.entity.*
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EntitySize
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.Pose
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.IPacket
 import net.minecraft.network.datasync.DataParameter

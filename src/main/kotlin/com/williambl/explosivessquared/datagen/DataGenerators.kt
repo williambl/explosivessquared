@@ -1,6 +1,7 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.datagen
 
 import com.google.gson.GsonBuilder
+import com.williambl.explosivessquared.ExplosivesSquared
 import com.williambl.explosivessquared.objectholders.ItemHolder
 import net.minecraft.block.Block
 import net.minecraft.data.DataGenerator

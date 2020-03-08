@@ -1,4 +1,4 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.block.tileentity
 
 import com.williambl.explosivessquared.objectholders.TileEntityTypeHolder
 import net.minecraft.nbt.CompoundNBT

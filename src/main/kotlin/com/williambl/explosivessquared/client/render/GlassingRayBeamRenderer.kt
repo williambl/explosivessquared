@@ -1,7 +1,9 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.client.render
 
 import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager

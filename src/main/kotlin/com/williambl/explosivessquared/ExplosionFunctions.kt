@@ -1,5 +1,7 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.entity.ExplosiveEntity
+import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable

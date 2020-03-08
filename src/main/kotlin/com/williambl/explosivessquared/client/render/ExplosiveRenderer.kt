@@ -1,6 +1,9 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.client.render
 
 import com.mojang.blaze3d.matrix.MatrixStack
+import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.entity.ExplosiveEntity
+import com.williambl.explosivessquared.entity.MissileEntity
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft

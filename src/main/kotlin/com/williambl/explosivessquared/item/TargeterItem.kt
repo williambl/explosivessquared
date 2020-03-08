@@ -1,5 +1,6 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.item
 
+import com.williambl.explosivessquared.block.tileentity.MissileTileEntity
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -14,7 +15,7 @@ import net.minecraft.world.World
 class TargeterItem(properties: Properties) : Item(properties) {
 
     override fun onItemUse(context: ItemUseContext): ActionResultType {
-        if (context.func_225518_g_()) {
+        if (context.func_225518_g_()) { //isSneaking
             val tileEntity: TileEntity? = context.world.getTileEntity(context.pos)
             if (tileEntity != null && tileEntity is MissileTileEntity) {
                 if (context.item.getOrCreateChildTag("ExplosivesSquared").contains("Target")) {

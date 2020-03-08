@@ -1,5 +1,7 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.item
 
+import com.williambl.explosivessquared.ExplosiveType
+import com.williambl.explosivessquared.entity.ExplosiveEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack

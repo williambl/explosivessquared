@@ -1,5 +1,6 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.entity
 
+import com.williambl.explosivessquared.ExplosivesSquared
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.MoverType

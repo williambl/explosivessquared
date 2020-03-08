@@ -1,5 +1,10 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.block.ExplosiveBlock
+import com.williambl.explosivessquared.block.MissileBlock
+import com.williambl.explosivessquared.entity.ExplosiveEntity
+import com.williambl.explosivessquared.entity.MissileEntity
+import com.williambl.explosivessquared.item.BoomStickItem
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.entity.EntityClassification
