@@ -26,7 +26,8 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
     override fun registerModels() {
         ExplosivesSquared.explosives.forEach { makeItemModelFromBlock(it.block) }
         ExplosivesSquared.explosives.forEach { makeItemModelFromBlock(it.missileBlock) }
-        makeBasicItemModel(ItemHolder.targeter, modLoc("item/targeter"))
+        ExplosivesSquared.explosives.forEach { makeBasicItemModel(it.boomStickItem, modLoc("item/boomstick_a")) }
+        makeBasicItemModel(ItemHolder.targeter, modLoc("item/detonator_off"))
     }
 
     private fun makeItemModelFromBlock(block: Block) {
@@ -46,7 +47,7 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
 class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) : BlockStateProvider(gen, ExplosivesSquared.modid, existingFileHelper) {
     override fun registerStatesAndModels() {
         ExplosivesSquared.explosives.forEach {
-            makeCubeBlockState(it.block, modLoc("block/explosive/explosive"))
+            makeBottomTopBlockState(it.block, modLoc("block/explosive/explosive_bottom"), modLoc("block/explosive/explosive_top"), modLoc("block/explosive/explosive_side"))
             makeMissileBlockState(it.missileBlock)
         }
     }
@@ -55,6 +56,15 @@ class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) 
         val model = models().getBuilder(block.registryName!!.path)
                 .parent(models().getExistingFile(mcLoc("block/cube_all")))
                 .texture("all", texture)
+        getVariantBuilder(block).forAllStates { ConfiguredModel.builder().modelFile(model).build() }
+    }
+
+    private fun makeBottomTopBlockState(block: Block,  textureBottom: ResourceLocation, textureTop: ResourceLocation, textureSide: ResourceLocation) {
+        val model = models().getBuilder(block.registryName!!.path)
+                .parent(models().getExistingFile(mcLoc("block/cube_bottom_top")))
+                .texture("bottom", textureBottom)
+                .texture("top", textureTop)
+                .texture("side", textureSide)
         getVariantBuilder(block).forAllStates { ConfiguredModel.builder().modelFile(model).build() }
     }
 

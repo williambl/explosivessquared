@@ -1,6 +1,8 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube_bottom_top",
   "textures": {
-    "all": "explosivessquared:block/explosive/explosive"
+    "bottom": "explosivessquared:block/explosive/explosive_bottom",
+    "top": "explosivessquared:block/explosive/explosive_top",
+    "side": "explosivessquared:block/explosive/explosive_side"
   }
 }

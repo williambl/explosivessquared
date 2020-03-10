@@ -33,6 +33,8 @@ class ExplosiveType(val name: String) {
         private set
     public lateinit var missileItem: BlockItem
         private set
+    public lateinit var boomStickItem: BoomStickItem
+        private set
     public lateinit var entityType: EntityType<out ExplosiveEntity>
         private set
     public lateinit var missileEntityType: EntityType<out MissileEntity>
@@ -95,9 +97,9 @@ class ExplosiveType(val name: String) {
 
     fun createBoomStick(): BoomStickItem {
         if (this::block.isInitialized) {
-            val item = BoomStickItem(this, boomStickProperties)
-            item.setRegistryName(name + "_boomstick")
-            return item
+            boomStickItem = BoomStickItem(this, boomStickProperties)
+            boomStickItem.setRegistryName(name + "_boomstick")
+            return boomStickItem
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
 
