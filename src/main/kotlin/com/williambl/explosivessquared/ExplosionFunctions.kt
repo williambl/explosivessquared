@@ -78,12 +78,16 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
                 }
         it.position.getAllInSphere(radius.roundToInt())
                 .forEach { pos ->
-                    val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
-                    fallingEntity.setHurtEntities(true)
-                    val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
-                    val velocityVector = fallingEntity.positionVec.subtract(it.positionVec).normalize().mul(speed, speed, speed)
-                    fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
-                    it.world.addEntity(fallingEntity)
+                    val blockState = it.world.getBlockState(pos)
+                    if (it.world.canExplosionDestroy(radius.toInt(), it.position, pos, it)) {
+                        val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, blockState)
+                        fallingEntity.setHurtEntities(true)
+                        fallingEntity.isInvulnerable = true
+                        val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
+                        val velocityVector = fallingEntity.positionVec.subtract(it.positionVec).normalize().mul(speed, speed, speed)
+                        fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                        it.world.addEntity(fallingEntity)
+                    }
                 }
     }
 }
@@ -99,12 +103,16 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                 }
         it.position.getAllInSphere(radius.roundToInt())
                 .forEach { pos ->
-                    val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, it.world.getBlockState(pos))
-                    fallingEntity.setHurtEntities(true)
-                    val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
-                    val velocityVector = it.positionVec.subtract(fallingEntity.positionVec).normalize().mul(speed, speed, speed)
-                    fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
-                    it.world.addEntity(fallingEntity)
+                    val blockState = it.world.getBlockState(pos)
+                    if (it.world.canExplosionDestroy(radius.toInt(), it.position, pos, it)) {
+                        val fallingEntity = FallingBlockEntity(it.world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, blockState)
+                        fallingEntity.setHurtEntities(true)
+                        fallingEntity.isInvulnerable = true
+                        val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
+                        val velocityVector = it.positionVec.subtract(fallingEntity.positionVec).normalize().mul(speed, speed, speed)
+                        fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                        it.world.addEntity(fallingEntity)
+                    }
                 }
     }
 }

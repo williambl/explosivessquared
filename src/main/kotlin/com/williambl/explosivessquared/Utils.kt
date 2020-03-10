@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.common.IPlantable
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun BlockState.isVegetation(): Boolean {
     if (BlockTags.LEAVES.contains(this.block))
@@ -46,4 +47,16 @@ fun BlockPos.getAllInColumn(radius: Int): Sequence<BlockPos> {
             .filter { pos -> pos.distanceSq(this) < radius.toFloat().pow(2) }
             .map { pos -> List(256) { idx -> BlockPos(pos.x, idx, pos.z) } }
             .flatten()
+}
+
+fun World.canExplosionDestroy(explosionRadius: Int, explosionCentre: BlockPos, pos: BlockPos, exploder: Entity): Boolean {
+    var f: Double = explosionRadius * (0.7f + this.rand.nextFloat() * 0.6f) - 0.225 * sqrt(explosionCentre.distanceSq(pos))
+    val blockstate = this.world.getBlockState(pos)
+    val ifluidstate = this.world.getFluidState(pos)
+    if (!blockstate.isAir(this.world, pos) || !ifluidstate.isEmpty) {
+        val f2 = blockstate.getExplosionResistance(this.world, pos, exploder, null).coerceAtLeast(ifluidstate.getExplosionResistance(this.world, pos, exploder, null))
+        f -= (f2 + 0.3f) * 0.3f
+    }
+
+    return f > 0.0f
 }
