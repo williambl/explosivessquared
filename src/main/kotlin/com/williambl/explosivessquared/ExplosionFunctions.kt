@@ -334,7 +334,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
                     if (FluidTags.WATER.contains(it.world.getFluidState(pos).fluid)) {
                         it.world.setBlockState(pos, Blocks.AIR.defaultState)
                         for (i in 0..20)
-                            it.world.addParticle(ParticleTypes.EXPLOSION, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
+                            it.world.addParticle(ParticleTypes.EXPLOSION_EMITTER, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), 0.0, 0.0, 0.0)
                     }
                 }
         it.world.addEntity(GlassingRayBeamEntity(EntityTypeHolder.glassingRayBeam, it.world, it.posX, it.posY, it.posZ))

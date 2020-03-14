@@ -60,6 +60,7 @@ object ExplosivesSquared {
                     .setExplodeFunction(netherExplosion(8.0)),
             ExplosiveType("glassing_ray")
                     .setExplodeFunction(glassingRay(16.0))
+                    .setClientFunction(glassingRayClient(16.0))
     )
 
     lateinit var explosiveMap: Map<String, ExplosiveType>

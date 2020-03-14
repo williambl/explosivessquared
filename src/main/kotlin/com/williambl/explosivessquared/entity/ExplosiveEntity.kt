@@ -73,6 +73,8 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
             this.remove()
             if (!this.world.isRemote) {
                 ExplosivesSquared.explosiveMap[type.registryName!!.path]?.explodeFunction?.invoke(this)
+            } else {
+                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.clientFunction?.invoke(this)
             }
         } else {
             this.handleWaterMovement()

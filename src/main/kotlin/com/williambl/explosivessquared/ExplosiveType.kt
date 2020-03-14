@@ -23,6 +23,8 @@ class ExplosiveType(val name: String) {
 
     public var explodeFunction: (ExplosiveEntity) -> Unit = {}
         private set
+    public var clientFunction: (ExplosiveEntity) -> Unit = {}
+        private set
     public var fuse: Int = 80
         private set
     public lateinit var block: ExplosiveBlock
@@ -42,6 +44,11 @@ class ExplosiveType(val name: String) {
 
     fun setExplodeFunction(explodeFunction: (ExplosiveEntity) -> Unit): ExplosiveType {
         this.explodeFunction = explodeFunction
+        return this
+    }
+
+    fun setClientFunction(clientFunction: (ExplosiveEntity) -> Unit): ExplosiveType {
+        this.clientFunction = clientFunction
         return this
     }
 
