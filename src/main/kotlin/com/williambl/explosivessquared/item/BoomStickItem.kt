@@ -20,6 +20,7 @@ class BoomStickItem(val explosiveType: ExplosiveType, properties: Item.Propertie
         if (result.type == RayTraceResult.Type.BLOCK) {
             val explosiveEntity = ExplosiveEntity(explosiveType.entityType, world, result.pos.x.toDouble(), result.pos.y.toDouble(), result.pos.z.toDouble(), playerIn)
             explosiveEntity.setFuse(0)
+            explosiveEntity.isInvisible = true
             world.addEntity(explosiveEntity)
             world.playSound(null as PlayerEntity?, explosiveEntity.posX, explosiveEntity.posY, explosiveEntity.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0f, 1.0f)
             return ActionResult(ActionResultType.SUCCESS, playerIn.getHeldItem(handIn))
