@@ -41,7 +41,9 @@ object ExplosivesSquared {
             ExplosiveType("big_tnt").setExplodeFunction(regularExplosion(15f)),
             ExplosiveType("slow_tnt")
                     .setFuseLength(160)
-                    .setExplodeFunction(regularExplosion(15f)),
+                    .setExplodeFunction(regularExplosion(15f))
+                    .noBoomstick()
+                    .noMissile(),
             ExplosiveType("vegetation_destroyer")
                     .setExplodeFunction(vegetationDestroyerExplosion(8.0)),
             ExplosiveType("gravitationaliser")
@@ -69,7 +71,8 @@ object ExplosivesSquared {
     public fun setup(event: FMLCommonSetupEvent) {
         explosiveMap = explosives.map { it.name to it }.toMap()
         explosives.forEach {
-            RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
+            if (it.shouldCreateMissile)
+                RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
         }
     }
 
@@ -77,7 +80,8 @@ object ExplosivesSquared {
     public fun doClientStuff(event: FMLClientSetupEvent) {
         explosives.forEach {
             RenderingRegistry.registerEntityRenderingHandler(it.entityType, ::ExplosiveRenderer)
-            RenderingRegistry.registerEntityRenderingHandler(it.missileEntityType, ::ExplosiveRenderer)
+            if (it.shouldCreateMissile)
+                RenderingRegistry.registerEntityRenderingHandler(it.missileEntityType, ::ExplosiveRenderer)
         }
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeHolder.glassingRayBeam, ::GlassingRayBeamRenderer)
     }
@@ -90,7 +94,7 @@ object ExplosivesSquared {
     fun registerBlocks(event: RegistryEvent.Register<Block>) {
         event.registry.registerAll(
                 *explosives.map { it.createBlock() }.toTypedArray(),
-                *explosives.map { it.createMissileBlock() }.toTypedArray()
+                *explosives.mapNotNull { it.createMissileBlock() }.toTypedArray()
         )
     }
 
@@ -98,8 +102,8 @@ object ExplosivesSquared {
     fun registerItems(event: RegistryEvent.Register<Item>) {
         event.registry.registerAll(
                 *explosives.map { it.createItem() }.toTypedArray(),
-                *explosives.map { it.createMissileItem() }.toTypedArray(),
-                *explosives.map { it.createBoomStick() }.toTypedArray(),
+                *explosives.mapNotNull { it.createMissileItem() }.toTypedArray(),
+                *explosives.mapNotNull { it.createBoomStick() }.toTypedArray(),
                 TargeterItem(Item.Properties().group(ItemGroup.TOOLS)).setRegistryName("targeter")
         )
     }
@@ -108,14 +112,14 @@ object ExplosivesSquared {
     fun registerEntityTypes(event: RegistryEvent.Register<EntityType<out Entity>>) {
         event.registry.registerAll(
                 *explosives.map { it.createEntityType() }.toTypedArray(),
-                *explosives.map { it.createMissileEntityType() }.toTypedArray(),
+                *explosives.mapNotNull { it.createMissileEntityType() }.toTypedArray(),
                 EntityType.Builder.create(::GlassingRayBeamEntity, EntityClassification.MISC).build("glassing_ray_beam").setRegistryName("glassing_ray_beam")
         )
     }
 
     @SubscribeEvent
     fun registerTileEntityTypes(event: RegistryEvent.Register<TileEntityType<out TileEntity>>) {
-        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosives.map { it.missileBlock }.toTypedArray()).build(null).setRegistryName("missile"))
+        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosives.mapNotNull { if (it.shouldCreateMissile) it.missileBlock else null }.toTypedArray()).build(null).setRegistryName("missile"))
     }
 
     @SubscribeEvent

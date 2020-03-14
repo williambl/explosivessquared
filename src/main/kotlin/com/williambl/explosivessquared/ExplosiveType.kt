@@ -42,6 +42,11 @@ class ExplosiveType(val name: String) {
     public lateinit var missileEntityType: EntityType<out MissileEntity>
         private set
 
+    public var shouldCreateMissile = true
+        private set
+    public var shouldCreateBoomStick = true
+        private set
+
     fun setExplodeFunction(explodeFunction: (ExplosiveEntity) -> Unit): ExplosiveType {
         this.explodeFunction = explodeFunction
         return this
@@ -72,13 +77,25 @@ class ExplosiveType(val name: String) {
         return this
     }
 
+    fun noMissile(): ExplosiveType {
+        this.shouldCreateMissile = false
+        return this
+    }
+
+    fun noBoomstick(): ExplosiveType {
+        this.shouldCreateBoomStick = false
+        return this
+    }
+
     fun createBlock(): ExplosiveBlock {
         block = ExplosiveBlock(this, blockProperties)
         block.setRegistryName(name)
         return block
     }
 
-    fun createMissileBlock(): MissileBlock {
+    fun createMissileBlock(): MissileBlock? {
+        if (!this.shouldCreateMissile)
+            return null
         if (this::block.isInitialized) {
             missileBlock = MissileBlock(this, missileBlockProperties)
             missileBlock.setRegistryName(name + "_missile")
@@ -94,7 +111,9 @@ class ExplosiveType(val name: String) {
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
 
-    fun createMissileItem(): BlockItem {
+    fun createMissileItem(): BlockItem? {
+        if (!this.shouldCreateMissile)
+            return null
         if (this::missileBlock.isInitialized) {
             val item = BlockItem(missileBlock, missileItemProperties)
             item.setRegistryName(name + "_missile")
@@ -102,7 +121,9 @@ class ExplosiveType(val name: String) {
         } else throw UninitializedPropertyAccessException("Tried to create Missile Item before Missile Block!")
     }
 
-    fun createBoomStick(): BoomStickItem {
+    fun createBoomStick(): BoomStickItem? {
+        if (!this.shouldCreateBoomStick)
+            return null
         if (this::block.isInitialized) {
             boomStickItem = BoomStickItem(this, boomStickProperties)
             boomStickItem.setRegistryName(name + "_boomstick")
@@ -118,6 +139,8 @@ class ExplosiveType(val name: String) {
     }
 
     fun createMissileEntityType(): EntityType<*>? {
+        if (!this.shouldCreateMissile)
+            return null
         if (this::missileBlock.isInitialized) {
             if (this::entityType.isInitialized) {
                 missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).setTrackingRange(256).build(name + "_missile").setRegistryName(name + "_missile") as EntityType<out MissileEntity>
