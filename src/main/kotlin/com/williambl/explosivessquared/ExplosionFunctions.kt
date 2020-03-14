@@ -175,10 +175,13 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     .addMapping(Blocks.CLAY, Blocks.MAGMA_BLOCK)
                     .addMapping(Blocks.BRICKS, Blocks.NETHER_BRICKS)
                     .addMapping(Blocks.DIRT, Blocks.NETHERRACK)
+                    .addMapping({ state -> state.block is SpreadableSnowyDirtBlock }, Blocks.NETHER_WART_BLOCK)
                     .addMapping({ state -> state.block is IGrowable }, Blocks.NETHER_WART)
                     .addMapping(BlockTags.LOGS, Blocks.COBBLESTONE)
                     .addMapping(BlockTags.LEAVES, Blocks.COBBLESTONE)
                     .addMapping(BlockTags.ICE, Blocks.STONE)
+                    .addMapping(Blocks.FARMLAND, Blocks.SOUL_SAND)
+                    .addMapping(Blocks.GRASS_PATH, Blocks.COBBLESTONE)
             it.position.getAllInSphere(radius.roundToInt())
                     .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                     .forEach { pos ->
@@ -225,6 +228,8 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     .addMapping(Blocks.MAGMA_BLOCK, Blocks.CLAY)
                     .addMapping(Blocks.NETHER_BRICKS, Blocks.BRICKS)
                     .addMapping(Blocks.NETHERRACK, Blocks.DIRT)
+                    .addMapping(Blocks.NETHER_WART, Blocks.DEAD_BUSH)
+                    .addMapping(Blocks.NETHER_WART_BLOCK, Blocks.GRASS_BLOCK)
             it.position.getAllInSphere(radius.roundToInt())
                     .filter { pos -> !it.world.getBlockState(pos).isAir(it.world, pos) }
                     .forEach { pos ->
@@ -266,22 +271,24 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     }
         }
 
-        val blockPlacingPos = BlockPos.Mutable(it.position)
-        blockPlacingPos.move(Direction.UP).move(Direction.UP).move(Direction.UP)
-        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
-        it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        if (it.world.rand.nextDouble() < 0.1) {
+            val blockPlacingPos = BlockPos.Mutable(it.position)
+            blockPlacingPos.move(Direction.UP).move(Direction.UP).move(Direction.UP)
+            it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.DOWN), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.EAST), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+            it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
+        }
     }
 }
 
