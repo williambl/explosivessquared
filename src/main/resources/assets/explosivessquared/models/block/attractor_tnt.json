@@ -1,6 +1,7 @@
 {
-  "parent": "block/cube_bottom_top",
+  "parent": "explosivessquared:block/explosive",
   "textures": {
+    "within": "explosivessquared:block/explosive/attractor_tnt",
     "bottom": "explosivessquared:block/explosive/explosive_bottom",
     "top": "explosivessquared:block/explosive/explosive_top",
     "side": "explosivessquared:block/explosive/explosive_side"

@@ -6,12 +6,14 @@ import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.MissileEntity
 import com.williambl.explosivessquared.item.BoomStickItem
 import net.minecraft.block.Block
+import net.minecraft.block.Blocks
 import net.minecraft.block.material.Material
 import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
+import net.minecraft.util.ResourceLocation
 
 class ExplosiveType(val name: String) {
 
@@ -45,6 +47,13 @@ class ExplosiveType(val name: String) {
     public var shouldCreateMissile = true
         private set
     public var shouldCreateBoomStick = true
+        private set
+
+    public var texture: ResourceLocation = Blocks.AIR.registryName ?: ResourceLocation("")
+        get() =
+            if (field == Blocks.AIR.registryName)
+                ResourceLocation("explosivessquared:block/explosive/${block.registryName?.path ?: "explosive"}")
+            else field
         private set
 
     fun setExplodeFunction(explodeFunction: (ExplosiveEntity) -> Unit): ExplosiveType {
@@ -84,6 +93,11 @@ class ExplosiveType(val name: String) {
 
     fun noBoomstick(): ExplosiveType {
         this.shouldCreateBoomStick = false
+        return this
+    }
+
+    fun setTexture(texture: ResourceLocation): ExplosiveType {
+        this.texture = texture
         return this
     }
 

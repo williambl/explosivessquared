@@ -25,9 +25,9 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
 
     override fun registerModels() {
         ExplosivesSquared.explosives.forEach { makeItemModelFromBlock(it.block) }
-        ExplosivesSquared.explosives.forEach { makeItemModelFromBlock(it.missileBlock) }
-        ExplosivesSquared.explosives.forEach { makeBasicItemModel(it.boomStickItem, modLoc("item/boomstick_a")) }
-        makeBasicItemModel(ItemHolder.targeter, modLoc("item/detonator_off"))
+        ExplosivesSquared.explosives.forEach { if (it.shouldCreateMissile) makeItemModelFromBlock(it.missileBlock) }
+        ExplosivesSquared.explosives.forEach { if (it.shouldCreateBoomStick) makeBasicItemModel(it.boomStickItem, modLoc("item/boomstick")) }
+        makeBasicItemModel(ItemHolder.targeter, modLoc("item/targeter"))
     }
 
     private fun makeItemModelFromBlock(block: Block) {
@@ -47,8 +47,8 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
 class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) : BlockStateProvider(gen, ExplosivesSquared.modid, existingFileHelper) {
     override fun registerStatesAndModels() {
         ExplosivesSquared.explosives.forEach {
-            makeBottomTopBlockState(it.block, modLoc("block/explosive/explosive_bottom"), modLoc("block/explosive/explosive_top"), modLoc("block/explosive/explosive_side"))
-            makeMissileBlockState(it.missileBlock)
+            makeExplosiveBlockState(it.block, it.texture)
+            if (it.shouldCreateMissile) makeMissileBlockState(it.missileBlock)
         }
     }
 
@@ -59,9 +59,14 @@ class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) 
         getVariantBuilder(block).forAllStates { ConfiguredModel.builder().modelFile(model).build() }
     }
 
-    private fun makeBottomTopBlockState(block: Block,  textureBottom: ResourceLocation, textureTop: ResourceLocation, textureSide: ResourceLocation) {
+    private fun makeExplosiveBlockState(block: Block,
+                                        textureWithin: ResourceLocation,
+                                        textureBottom: ResourceLocation = modLoc("block/explosive/explosive_bottom"),
+                                        textureTop: ResourceLocation = modLoc("block/explosive/explosive_top"),
+                                        textureSide: ResourceLocation = modLoc("block/explosive/explosive_side")) {
         val model = models().getBuilder(block.registryName!!.path)
-                .parent(models().getExistingFile(mcLoc("block/cube_bottom_top")))
+                .parent(models().getExistingFile(modLoc("block/explosive")))
+                .texture("within", textureWithin)
                 .texture("bottom", textureBottom)
                 .texture("top", textureTop)
                 .texture("side", textureSide)
@@ -90,7 +95,7 @@ class LootTables(val generator: DataGenerator) : LootTableProvider(generator) {
     private fun addTables() {
         ExplosivesSquared.explosives.forEach {
             lootTables.put(it.block, createStandardTable(it.name, it.block))
-            lootTables.put(it.missileBlock, createStandardTable(it.missileBlock.registryName!!.path, it.missileBlock))
+            if (it.shouldCreateMissile) lootTables.put(it.missileBlock, createStandardTable(it.missileBlock.registryName!!.path, it.missileBlock))
         }
     }
 

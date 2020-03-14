@@ -19,6 +19,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
@@ -38,7 +39,9 @@ object ExplosivesSquared {
     private val LOGGER = LogManager.getLogger()
 
     var explosives: List<ExplosiveType> = listOf(
-            ExplosiveType("big_tnt").setExplodeFunction(regularExplosion(15f)),
+            ExplosiveType("big_tnt")
+                    .setExplodeFunction(regularExplosion(15f))
+                    .setTexture(ResourceLocation("minecraft:block/tnt_side")),
             ExplosiveType("slow_tnt")
                     .setFuseLength(160)
                     .setExplodeFunction(regularExplosion(15f))
@@ -55,11 +58,14 @@ object ExplosivesSquared {
             ExplosiveType("attractor_tnt")
                     .setExplodeFunction(attractingExplosion(8.0)),
             ExplosiveType("napalm")
-                    .setExplodeFunction(napalmExplosion(8.0)),
+                    .setExplodeFunction(napalmExplosion(8.0))
+                    .setTexture(ResourceLocation("minecraft:block/lava_still")),
             ExplosiveType("frost_bomb")
-                    .setExplodeFunction(frostExplosion(8.0)),
+                    .setExplodeFunction(frostExplosion(8.0))
+                    .setTexture(ResourceLocation("minecraft:block/packed_ice")),
             ExplosiveType("nether_bomb")
-                    .setExplodeFunction(netherExplosion(8.0)),
+                    .setExplodeFunction(netherExplosion(8.0))
+                    .setTexture(ResourceLocation("minecraft:block/nether_portal")),
             ExplosiveType("glassing_ray")
                     .setExplodeFunction(glassingRay(16.0))
                     .setClientFunction(glassingRayClient(16.0))
@@ -73,6 +79,7 @@ object ExplosivesSquared {
         explosives.forEach {
             if (it.shouldCreateMissile)
                 RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
+            RenderTypeLookup.setRenderLayer(it.block, RenderType.getCutout())
         }
     }
 
