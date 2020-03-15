@@ -3,11 +3,11 @@ package com.williambl.explosivessquared
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.objectholders.EntityTypeHolder
+import com.williambl.explosivessquared.util.*
 import com.williambl.explosivessquared.util.actions.BlockActionManager
 import com.williambl.explosivessquared.util.actions.BlockFunctionAction
 import com.williambl.explosivessquared.util.actions.BlockMappingAction
 import com.williambl.explosivessquared.util.actions.BlockRemovalAction
-import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
 import net.minecraft.block.SpreadableSnowyDirtBlock
@@ -25,7 +25,6 @@ import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.Explosion
-import net.minecraft.world.World
 import net.minecraftforge.common.Tags
 import kotlin.math.roundToInt
 
@@ -38,8 +37,9 @@ fun regularExplosion(radius: Float): ExplosionFunction {
 fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.roundToInt()))
+                .addFilter(isNotAir)
                 .addAction(BlockMappingAction(Blocks.GRASS, Blocks.DIRT))
-                .addAction(BlockRemovalAction { _, _, state -> !state.isGrass() })
+                .addAction(BlockRemovalAction(isOfType<SpreadableSnowyDirtBlock>()))
                 .start()
     }
 }
@@ -47,11 +47,12 @@ fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
 fun gravitationalisingExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
-                .addAction(BlockFunctionAction({ _, _, _ -> true }, { world, pos ->
+                .addFilter(isNotAir)
+                .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val fallingEntity = FallingBlockEntity(world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, world.getBlockState(pos))
                     fallingEntity.setHurtEntities(true)
                     world.addEntity(fallingEntity)
-                }))
+                })
                 .start()
     }
 }
@@ -70,7 +71,8 @@ fun tntRainingExplosion(amount: Int, spread: Double): ExplosionFunction {
 fun repellingExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
-                .addAction(BlockFunctionAction({ _, _, _ -> true }, { world, pos ->
+                .addFilter(isNotAir)
+                .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val blockState = world.getBlockState(pos)
                     if (world.canExplosionDestroy(radius.toInt(), it.position, pos, it)) {
                         val fallingEntity = FallingBlockEntity(world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, blockState)
@@ -81,7 +83,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
-                }))
+                })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
                 .forEach { entity ->
@@ -96,7 +98,8 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
 fun attractingExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
-                .addAction(BlockFunctionAction({ _, _, _ -> true }, { world, pos ->
+                .addFilter(isNotAir)
+                .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val blockState = world.getBlockState(pos)
                     if (world.canExplosionDestroy(radius.toInt(), it.position, pos, it)) {
                         val fallingEntity = FallingBlockEntity(world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, blockState)
@@ -107,7 +110,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
-                }))
+                })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
                 .forEach { entity ->
@@ -122,7 +125,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
 fun napalmExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
-                .addAction(BlockFunctionAction({ world, pos, state -> state.isAir(world, pos) }, { world, pos ->
+                .addAction(BlockFunctionAction(isAir, { world, pos ->
                     world.setBlockState(pos, Blocks.FIRE.defaultState)
                 }))
                 .start()
@@ -133,13 +136,14 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
 fun frostExplosion(radius: Double): ExplosionFunction {
     return {
         val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.roundToInt()))
+                .addFilter(isNotAir)
                 .addAction(BlockMappingAction(Blocks.ICE, Blocks.PACKED_ICE))
                 .addAction(BlockMappingAction(Blocks.FIRE, Blocks.AIR))
                 .addAction(BlockMappingAction(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK))
-                .addAction(BlockMappingAction({ world, _, _ -> world.rand.nextDouble() < 0.05 }, Blocks.ICE))
-                .addAction(BlockMappingAction({ world, pos, _ ->
+                .addAction(BlockMappingAction(random(0.05), Blocks.ICE))
+                .addAction(BlockFunctionAction({ world, pos, _ ->
                     world.getBlockState(pos.up()).isAir(world, pos) && Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, world, pos.up())
-                }, Blocks.SNOW))
+                }, { world, pos -> world.setBlockState(pos.up(), Blocks.SNOW.defaultState, 2) }))
                 .addAction(BlockMappingAction(Blocks.WATER, Blocks.ICE))
                 .addAction(BlockMappingAction(Blocks.LAVA, Blocks.STONE))
                 .start()
@@ -164,19 +168,20 @@ fun netherExplosion(radius: Double): ExplosionFunction {
     return {
         if (!it.world.dimension.isNether) {
             val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+                    .addFilter(isNotAir)
                     .addAction(BlockMappingAction(Tags.Blocks.SAND, Blocks.SOUL_SAND))
                     .addAction(BlockMappingAction(Blocks.CLAY, Blocks.MAGMA_BLOCK))
                     .addAction(BlockMappingAction(Blocks.BRICKS, Blocks.NETHER_BRICKS))
                     .addAction(BlockMappingAction(Blocks.DIRT, Blocks.NETHERRACK))
-                    .addAction(BlockMappingAction({ _, _, state -> state.block is SpreadableSnowyDirtBlock }, Blocks.NETHER_WART_BLOCK))
-                    .addAction(BlockMappingAction({ _, _, state -> state.block is IGrowable }, Blocks.NETHER_WART))
+                    .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.NETHER_WART_BLOCK))
+                    .addAction(BlockMappingAction(isOfType<IGrowable>(), Blocks.NETHER_WART))
                     .addAction(BlockMappingAction(BlockTags.LOGS, Blocks.COBBLESTONE))
                     .addAction(BlockMappingAction(BlockTags.LEAVES, Blocks.COBBLESTONE))
                     .addAction(BlockMappingAction(BlockTags.ICE, Blocks.STONE))
                     .addAction(BlockMappingAction(Blocks.FARMLAND, Blocks.SOUL_SAND))
                     .addAction(BlockMappingAction(Blocks.GRASS_PATH, Blocks.COBBLESTONE))
                     .addAction(BlockMappingAction(Blocks.WATER, Blocks.LAVA))
-                    .addAction(BlockMappingAction({ world: World, pos: BlockPos, state: BlockState -> world.rand.nextDouble() < 0.05 }, Blocks.NETHERRACK))
+                    .addAction(BlockMappingAction(random(0.05), Blocks.NETHERRACK))
                     .start()
             it.world.getEntitiesInSphere(it.position, radius, it)
                     .forEach { entity ->
@@ -206,6 +211,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     }
         } else {
             val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+                    .addFilter(isNotAir)
                     .addAction(BlockMappingAction(Blocks.SOUL_SAND, Blocks.SAND))
                     .addAction(BlockMappingAction(Blocks.MAGMA_BLOCK, Blocks.CLAY))
                     .addAction(BlockMappingAction(Blocks.NETHER_BRICKS, Blocks.BRICKS))
@@ -213,7 +219,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                     .addAction(BlockMappingAction(Blocks.NETHER_WART, Blocks.DEAD_BUSH))
                     .addAction(BlockMappingAction(Blocks.NETHER_WART_BLOCK, Blocks.GRASS_BLOCK))
                     .addAction(BlockMappingAction(Blocks.LAVA, Blocks.WATER))
-                    .addAction(BlockMappingAction({ world: World, pos: BlockPos, state: BlockState -> world.rand.nextDouble() < 0.05 }, Blocks.GRASS_BLOCK))
+                    .addAction(BlockMappingAction(random(0.05), Blocks.GRASS_BLOCK))
                     .start()
             it.world.getEntitiesInSphere(it.position, radius, it)
                     .forEach { entity ->
@@ -270,10 +276,10 @@ fun glassingRay(radius: Double): ExplosionFunction {
                 .addAction(BlockMappingAction(BlockTags.SAND, Tags.Blocks.GLASS))
                 .addAction(BlockMappingAction(Tags.Blocks.GRAVEL, Tags.Blocks.STONE))
                 .addAction(BlockMappingAction(Blocks.CLAY, Blocks.TERRACOTTA))
-                .addAction(BlockMappingAction({ _, _, state -> state.block is SpreadableSnowyDirtBlock }, Blocks.DIRT))
+                .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
                 .addAction(BlockMappingAction(Blocks.GRASS_PATH, Blocks.COARSE_DIRT))
                 .addAction(BlockMappingAction(Blocks.COBBLESTONE, Blocks.STONE))
-                .addAction(BlockMappingAction({ world, pos, state -> state.isAir(world, pos) && world.rand.nextBoolean() }, Blocks.FIRE))
+                .addAction(BlockMappingAction(combine(isAir, fiftyFifty), Blocks.FIRE))
                 .addAction(BlockRemovalAction(BlockTags.ICE))
                 .addAction(BlockMappingAction(Tags.Blocks.STONE, listOf(Blocks.LAVA, Blocks.OBSIDIAN)))
                 .addAction(BlockMappingAction(Blocks.DIRT, listOf(Blocks.MAGMA_BLOCK, Blocks.COARSE_DIRT)))
