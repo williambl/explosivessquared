@@ -9,6 +9,7 @@ import com.williambl.explosivessquared.datagen.LootTables
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.item.TargeterItem
 import com.williambl.explosivessquared.objectholders.EntityTypeHolder
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.RenderTypeLookup
@@ -29,6 +30,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent
 import org.apache.logging.log4j.LogManager
+import java.util.concurrent.Executors
 import java.util.function.Supplier
 
 @Mod(ExplosivesSquared.modid)
@@ -37,6 +39,8 @@ object ExplosivesSquared {
 
     const val modid = "explosivessquared"
     private val LOGGER = LogManager.getLogger()
+
+    val threadPool = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
     var explosives: List<ExplosiveType> = listOf(
             ExplosiveType("big_tnt")

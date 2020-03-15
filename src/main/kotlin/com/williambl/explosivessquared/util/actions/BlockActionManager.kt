@@ -1,8 +1,9 @@
 package com.williambl.explosivessquared.util.actions
 
+import com.williambl.explosivessquared.ExplosivesSquared
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.minecraft.block.BlockState
 import net.minecraft.util.concurrent.ThreadTaskExecutor
 import net.minecraft.util.math.BlockPos
@@ -26,27 +27,22 @@ class BlockActionManager(val world: World, val positions: Sequence<BlockPos>) {
         return this
     }
 
-    public fun start() = runBlocking {
-        launch {
+    public fun start() {
+        GlobalScope.launch(ExplosivesSquared.threadPool) {
             val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
-            val runnables = mutableListOf<Runnable>()
-            val suppliers = mutableListOf<Supplier<Boolean>>()
             positions.forEach { pos ->
+                val suppliers = mutableListOf<Supplier<Boolean>>()
                 filters.forEach {
                     suppliers.add(Supplier { it(world, pos, world.getBlockState(pos)) })
                 }
                 if (suppliers.isEmpty() || executor.supplyAsync { suppliers.all { it.get() } }.await()) {
                     actions.forEach {
-                        runnables.add(Runnable { if (it.matches(world, pos, world.getBlockState(pos))) it.process(world, pos) })
-                    }
-                    executor.runAsync {
-                        runnables.forEach {
-                            it.run()
+                        executor.execute {
+                            if (it.matches(world, pos, world.getBlockState(pos)))
+                                it.process(world, pos)
                         }
-                    }.await()
-                    runnables.clear()
+                    }
                 }
-                suppliers.clear()
             }
         }
     }
