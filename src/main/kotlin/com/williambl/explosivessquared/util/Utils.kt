@@ -1,34 +1,12 @@
-package com.williambl.explosivessquared
+package com.williambl.explosivessquared.util
 
-import net.minecraft.block.BlockState
-import net.minecraft.block.GrassBlock
-import net.minecraft.block.IGrowable
-import net.minecraft.block.VineBlock
 import net.minecraft.entity.Entity
-import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import net.minecraftforge.common.IPlantable
 import kotlin.math.pow
 import kotlin.math.sqrt
-
-fun BlockState.isVegetation(): Boolean {
-    if (BlockTags.LEAVES.contains(this.block))
-        return true
-    if (this.block is IPlantable)
-        return true
-    if (this.block is IGrowable)
-        return true
-    if (this.block is VineBlock)
-        return true
-    return false
-}
-
-fun BlockState.isGrass(): Boolean {
-    return this.block is GrassBlock
-}
 
 fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
     return Sequence { BlockPos.getAllInBoxMutable(this.subtract(BlockPos(radius, radius, radius)), this.add(BlockPos(radius, radius, radius))).iterator() }

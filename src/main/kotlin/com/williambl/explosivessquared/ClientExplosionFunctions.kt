@@ -1,5 +1,6 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.util.getAllInSphere
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.FluidTags

@@ -38,8 +38,8 @@ fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphere(radius.roundToInt()))
                 .addFilter(isNotAir)
-                .addAction(BlockMappingAction(Blocks.GRASS, Blocks.DIRT))
-                .addAction(BlockRemovalAction(isOfType<SpreadableSnowyDirtBlock>()))
+                .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
+                .addAction(BlockRemovalAction(isVegetation))
                 .start()
     }
 }
@@ -124,12 +124,12 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
 
 fun napalmExplosion(radius: Double): ExplosionFunction {
     return {
+        it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
         BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
                 .addAction(BlockFunctionAction(isAir, { world, pos ->
                     world.setBlockState(pos, Blocks.FIRE.defaultState)
                 }))
                 .start()
-        it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
     }
 }
 
