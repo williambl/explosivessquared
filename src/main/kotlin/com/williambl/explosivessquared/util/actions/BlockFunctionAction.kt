@@ -7,10 +7,15 @@ import net.minecraft.tags.Tag
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-class BlockFunctionAction(val predicate: ((World, BlockPos, BlockState) -> Boolean)? = null, tagInput: Tag<Block>? = null, blockCollectionInput: Collection<Block>? = null,
+class BlockFunctionAction(val predicate: ((World, BlockPos, BlockState) -> Boolean)? = null, tagInput: Tag<Block>? = null, blocksInput: Collection<Block>? = null,
                           val function: (World, BlockPos) -> Unit) : BlockAction {
 
-    val inputs: List<Block> = tagInput?.allElements?.toList() ?: blockCollectionInput?.toList() ?: listOf(Blocks.AIR)
+    val inputs: List<Block> = tagInput?.allElements?.toList() ?: blocksInput?.toList() ?: listOf(Blocks.AIR)
+
+    constructor(input: Tag<Block>, function: (World, BlockPos) -> Unit) : this(tagInput = input, function = function)
+    constructor(input: Collection<Block>, function: (World, BlockPos) -> Unit) : this(blocksInput = input, function = function)
+    constructor(input: Block, function: (World, BlockPos) -> Unit) : this(blocksInput = listOf(input), function = function)
+    constructor(input: ((World, BlockPos, BlockState) -> Boolean), function: (World, BlockPos) -> Unit) : this(predicate = input, function = function)
 
     override fun matches(world: World, blockPos: BlockPos, blockState: BlockState): Boolean {
         return predicate?.invoke(world, blockPos, blockState) ?: inputs.contains(blockState.block)
