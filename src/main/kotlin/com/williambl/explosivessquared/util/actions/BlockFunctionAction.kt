@@ -21,7 +21,7 @@ class BlockFunctionAction(val predicate: ((World, BlockPos, BlockState) -> Boole
         return predicate?.invoke(world, blockPos, blockState) ?: inputs.contains(blockState.block)
     }
 
-    override fun process(world: World, blockPos: BlockPos): Runnable {
-        return Runnable { function(world, blockPos) }
+    override fun process(world: World, blockPos: BlockPos) {
+        function(world, blockPos)
     }
 }
