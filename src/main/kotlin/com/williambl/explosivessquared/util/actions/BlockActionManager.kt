@@ -38,13 +38,13 @@ class BlockActionManager(val world: World, val positions: Sequence<BlockPos>) {
                 if (suppliers.isEmpty() || executor.supplyAsync { suppliers.all { it.get() } }.await()) {
                     actions.forEach {
                         runnables.add(Runnable { if (it.matches(world, pos, world.getBlockState(pos))) it.process(world, pos) })
-                        executor.runAsync {
-                            runnables.forEach {
-                                it.run()
-                            }
-                        }.await()
-                        runnables.clear()
                     }
+                    executor.runAsync {
+                        runnables.forEach {
+                            it.run()
+                        }
+                    }.await()
+                    runnables.clear()
                 }
                 suppliers.clear()
             }
