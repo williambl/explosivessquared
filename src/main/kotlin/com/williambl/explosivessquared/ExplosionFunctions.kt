@@ -289,3 +289,12 @@ fun glassingRay(radius: Double): ExplosionFunction {
         it.world.addEntity(GlassingRayBeamEntity(EntityTypeHolder.glassingRayBeam, it.world, it.posX, it.posY, it.posZ))
     }
 }
+
+fun removeAllBlocks(radius: Double): ExplosionFunction {
+    return {
+        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+                .addFilter(isNotAir)
+                .addAction(BlockRemovalAction { _, _, _ -> true })
+                .start()
+    }
+}
