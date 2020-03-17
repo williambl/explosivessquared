@@ -36,7 +36,7 @@ fun regularExplosion(radius: Float): ExplosionFunction {
 
 fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.roundToInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.roundToInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
                 .addAction(BlockRemovalAction(isVegetation))
@@ -46,7 +46,7 @@ fun vegetationDestroyerExplosion(radius: Double): ExplosionFunction {
 
 fun gravitationalisingExplosion(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val fallingEntity = FallingBlockEntity(world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, world.getBlockState(pos))
@@ -70,7 +70,7 @@ fun tntRainingExplosion(amount: Int, spread: Double): ExplosionFunction {
 
 fun repellingExplosion(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val blockState = world.getBlockState(pos)
@@ -97,7 +97,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
 
 fun attractingExplosion(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
                     val blockState = world.getBlockState(pos)
@@ -125,7 +125,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
 fun napalmExplosion(radius: Double): ExplosionFunction {
     return {
         it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addAction(BlockFunctionAction(isAir, { world, pos ->
                     world.setBlockState(pos, Blocks.FIRE.defaultState)
                 }))
@@ -135,7 +135,7 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
 
 fun frostExplosion(radius: Double): ExplosionFunction {
     return {
-        val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.roundToInt()))
+        val mapping = BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.roundToInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockMappingAction(Blocks.ICE, Blocks.PACKED_ICE))
                 .addAction(BlockMappingAction(Blocks.FIRE, Blocks.AIR))
@@ -167,7 +167,7 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 fun netherExplosion(radius: Double): ExplosionFunction {
     return {
         if (!it.world.dimension.isNether) {
-            val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+            val mapping = BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                     .addFilter(isNotAir)
                     .addAction(BlockMappingAction(Tags.Blocks.SAND, Blocks.SOUL_SAND))
                     .addAction(BlockMappingAction(Blocks.CLAY, Blocks.MAGMA_BLOCK))
@@ -210,7 +210,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
                     }
         } else {
-            val mapping = BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+            val mapping = BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                     .addFilter(isNotAir)
                     .addAction(BlockMappingAction(Blocks.SOUL_SAND, Blocks.SAND))
                     .addAction(BlockMappingAction(Blocks.MAGMA_BLOCK, Blocks.CLAY))
@@ -272,7 +272,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 
 fun glassingRay(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addAction(BlockMappingAction(BlockTags.SAND, Tags.Blocks.GLASS))
                 .addAction(BlockMappingAction(Tags.Blocks.GRAVEL, Tags.Blocks.STONE))
                 .addAction(BlockMappingAction(Blocks.CLAY, Blocks.TERRACOTTA))
@@ -292,7 +292,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
 
 fun removeAllBlocks(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphere(radius.toInt()))
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockRemovalAction { _, _, _ -> true })
                 .start()

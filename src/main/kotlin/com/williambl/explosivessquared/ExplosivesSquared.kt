@@ -40,7 +40,7 @@ object ExplosivesSquared {
     const val modid = "explosivessquared"
     private val LOGGER = LogManager.getLogger()
 
-    val threadPool = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    val threadPool = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
 
     var explosives: List<ExplosiveType> = listOf(
             ExplosiveType("big_tnt")
@@ -74,7 +74,7 @@ object ExplosivesSquared {
                     .setExplodeFunction(glassingRay(16.0))
                     .setClientFunction(glassingRayClient(16.0)),
             ExplosiveType("nuke")
-                    .setExplodeFunction(removeAllBlocks(256.0))
+                    .setExplodeFunction(removeAllBlocks(128.0))
     )
 
     lateinit var explosiveMap: Map<String, ExplosiveType>

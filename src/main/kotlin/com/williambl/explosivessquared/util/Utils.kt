@@ -22,6 +22,10 @@ fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
     return getAllInLine(radius).map { y -> getAllInCircle(getLengthOfChord(radius, y)).map { xz -> mPos.setPos(this.x + xz.first, this.y + y, this.z + xz.second) } }.flatten()
 }
 
+fun BlockPos.getAllInSphereSeq(radius: Int): Sequence<Sequence<Triple<Int, Int, Int>>> {
+    return getAllInLine(radius).map { x -> getAllInCircle(getLengthOfChord(radius, x)).map { yz -> Triple(this.x + x, this.y + yz.first, this.z + yz.second) } }
+}
+
 fun getAllInCircle(radius: Int): Sequence<Pair<Int, Int>> {
     return getAllInLine(radius).map { x -> getAllInLine(getLengthOfChord(radius, x)).map { y -> Pair(x, y) } }.flatten()
 }

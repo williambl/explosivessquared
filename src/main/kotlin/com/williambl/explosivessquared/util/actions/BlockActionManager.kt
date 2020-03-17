@@ -3,6 +3,8 @@ package com.williambl.explosivessquared.util.actions
 import com.williambl.explosivessquared.ExplosivesSquared
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.minecraft.block.BlockState
 import net.minecraft.util.concurrent.ThreadTaskExecutor
@@ -11,7 +13,7 @@ import net.minecraft.world.World
 import net.minecraftforge.fml.LogicalSide
 import net.minecraftforge.fml.LogicalSidedProvider
 
-class BlockActionManager(val world: World, val positions: Sequence<BlockPos>) {
+class BlockActionManager(val world: World, val positions: Sequence<Sequence<Triple<Int, Int, Int>>>) {
 
     private val actions: MutableList<BlockAction> = mutableListOf()
     private val filters: MutableList<(World, BlockPos, BlockState) -> Boolean> = mutableListOf()
@@ -29,18 +31,24 @@ class BlockActionManager(val world: World, val positions: Sequence<BlockPos>) {
     public fun start() {
         GlobalScope.launch(ExplosivesSquared.threadPool) {
             val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
-            positions.map { pos ->
+            positions.map { seq ->
                 async {
-                    val imPos = pos.toImmutable()
-                    executor.execute {
-                    actions.forEach {
-                        val bs = world.getBlockState(imPos)
-                        if (filters.all { it(world, imPos, bs) } && it.matches(world, imPos, bs))
-                            it.process(world, imPos)
-                    }
+                    val pos = BlockPos.Mutable(0, 0, 0)
+                    seq.forEach { triple ->
+                        if (triple.second > 256 || triple.second < 0)
+                            return@forEach
+                        pos.setPos(triple.first, triple.second, triple.third)
+
+                        executor.deferTask {
+                            actions.forEach {
+                                val bs = world.getBlockState(pos)
+                                if (filters.all { it(world, pos, bs) } && it.matches(world, pos, bs))
+                                    it.process(world, pos)
+                            }
+                        }.await()
                     }
                 }
-            }.forEach { it.await() }
+            }.toList().awaitAll()
         }
     }
 
