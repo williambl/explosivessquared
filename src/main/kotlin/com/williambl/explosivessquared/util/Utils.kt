@@ -5,12 +5,41 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import kotlin.math.absoluteValue
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+fun getLengthOfChord(radius: Int, distanceFromCentre: Int): Int {
+    val radD = radius.toDouble()
+    val distD = distanceFromCentre.absoluteValue.toDouble() - 0.25
+    val result = sqrt(radD * radD - distD * distD)
+    return if (result.isNaN()) 0 else result.roundToInt()
+}
+
 fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
-    return Sequence { BlockPos.getAllInBoxMutable(this.subtract(BlockPos(radius, radius, radius)), this.add(BlockPos(radius, radius, radius))).iterator() }
-            .filter { pos -> pos.distanceSq(this) < radius.toFloat().pow(2) }
+    val mPos = BlockPos.Mutable(this)
+    return getAllInLine(radius).map { y -> getAllInCircle(getLengthOfChord(radius, y)).map { xz -> mPos.setPos(this.x + xz.first, this.y + y, this.z + xz.second) } }.flatten()
+}
+
+fun getAllInCircle(radius: Int): Sequence<Pair<Int, Int>> {
+    return getAllInLine(radius).map { x -> getAllInLine(getLengthOfChord(radius, x)).map { y -> Pair(x, y) } }.flatten()
+}
+
+fun getAllInLine(radius: Int): Sequence<Int> {
+    return object : Iterator<Int> {
+        var x = 0
+
+        override fun next(): Int {
+            val result = x
+            x = if (x > 0) -x else 1 - x
+            return result
+        }
+
+        override fun hasNext(): Boolean {
+            return x != radius + 1
+        }
+    }.asSequence()
 }
 
 fun World.getEntitiesInSphere(pos: BlockPos, radius: Double, excluding: Entity? = null, predicate: (Entity) -> Boolean = { _ -> true }): MutableList<Entity> {
