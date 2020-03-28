@@ -29,6 +29,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent
+import net.minecraftforge.registries.ForgeRegistry
+import net.minecraftforge.registries.RegistryBuilder
+import net.minecraftforge.registries.RegistryManager
 import org.apache.logging.log4j.LogManager
 import java.util.concurrent.Executors
 import java.util.function.Supplier
@@ -42,47 +45,13 @@ object ExplosivesSquared {
 
     val threadPool = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
 
-    var explosives: List<ExplosiveType> = listOf(
-            ExplosiveType("big_tnt")
-                    .setExplodeFunction(regularExplosion(15f))
-                    .setTexture(ResourceLocation("minecraft:block/tnt_side")),
-            ExplosiveType("slow_tnt")
-                    .setFuseLength(160)
-                    .setExplodeFunction(regularExplosion(15f))
-                    .noBoomstick()
-                    .noMissile(),
-            ExplosiveType("vegetation_destroyer")
-                    .setExplodeFunction(vegetationDestroyerExplosion(8.0)),
-            ExplosiveType("gravitationaliser")
-                    .setExplodeFunction(gravitationalisingExplosion(8.0)),
-            ExplosiveType("tnt_rainer")
-                    .setExplodeFunction(tntRainingExplosion(16, 16.0)),
-            ExplosiveType("repulsor_tnt")
-                    .setExplodeFunction(repellingExplosion(8.0)),
-            ExplosiveType("attractor_tnt")
-                    .setExplodeFunction(attractingExplosion(8.0)),
-            ExplosiveType("napalm")
-                    .setExplodeFunction(napalmExplosion(8.0))
-                    .setTexture(ResourceLocation("minecraft:block/lava_still")),
-            ExplosiveType("frost_bomb")
-                    .setExplodeFunction(frostExplosion(8.0))
-                    .setTexture(ResourceLocation("minecraft:block/packed_ice")),
-            ExplosiveType("nether_bomb")
-                    .setExplodeFunction(netherExplosion(8.0))
-                    .setTexture(ResourceLocation("minecraft:block/nether_portal")),
-            ExplosiveType("glassing_ray")
-                    .setExplodeFunction(glassingRay(16.0))
-                    .setClientFunction(glassingRayClient(16.0)),
-            ExplosiveType("nuke")
-                    .setExplodeFunction(removeAllBlocks(128.0))
-    )
-
-    lateinit var explosiveMap: Map<String, ExplosiveType>
+    val explosive_types: ForgeRegistry<ExplosiveType> by lazy {
+        RegistryManager.ACTIVE.getRegistry<ExplosiveType>(ResourceLocation(modid, "explosive_types"))
+    }
 
     @SubscribeEvent
     public fun setup(event: FMLCommonSetupEvent) {
-        explosiveMap = explosives.map { it.name to it }.toMap()
-        explosives.forEach {
+        explosive_types.forEach {
             if (it.shouldCreateMissile)
                 RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
             RenderTypeLookup.setRenderLayer(it.block, RenderType.getCutout())
@@ -91,7 +60,7 @@ object ExplosivesSquared {
 
     @SubscribeEvent
     public fun doClientStuff(event: FMLClientSetupEvent) {
-        explosives.forEach {
+        explosive_types.forEach {
             RenderingRegistry.registerEntityRenderingHandler(it.entityType, ::ExplosiveRenderer)
             if (it.shouldCreateMissile)
                 RenderingRegistry.registerEntityRenderingHandler(it.missileEntityType, ::ExplosiveRenderer)
@@ -104,19 +73,78 @@ object ExplosivesSquared {
     }
 
     @SubscribeEvent
+    fun registerRegistries(event: RegistryEvent.NewRegistry) {
+        RegistryBuilder<ExplosiveType>()
+                .setName(ResourceLocation(modid, "explosive_types"))
+                .setType(ExplosiveType::class.java)
+                .setMaxID(Integer.MAX_VALUE - 1)
+                .create()
+    }
+
+    @SubscribeEvent
+    fun registerExplosives(event: RegistryEvent.Register<ExplosiveType>) {
+        event.registry.registerAll(
+                ExplosiveType()
+                        .setExplodeFunction(regularExplosion(15f))
+                        .setTexture(ResourceLocation("minecraft:block/tnt_side"))
+                        .setRegistryName(ResourceLocation(modid, "big_tnt")),
+                ExplosiveType()
+                        .setFuseLength(160)
+                        .setExplodeFunction(regularExplosion(15f))
+                        .noBoomstick()
+                        .noMissile()
+                        .setRegistryName(ResourceLocation(modid, "slow_tnt")),
+                ExplosiveType()
+                        .setExplodeFunction(vegetationDestroyerExplosion(8.0))
+                        .setRegistryName(ResourceLocation(modid, "vegetation_destroyer")),
+                ExplosiveType()
+                        .setExplodeFunction(gravitationalisingExplosion(8.0))
+                        .setRegistryName(ResourceLocation(modid, "gravitationaliser")),
+                ExplosiveType()
+                        .setExplodeFunction(tntRainingExplosion(16, 16.0))
+                        .setRegistryName(ResourceLocation(modid, "tnt_rainer")),
+                ExplosiveType()
+                        .setExplodeFunction(repellingExplosion(8.0))
+                        .setRegistryName(ResourceLocation(modid, "repulsor_tnt")),
+                ExplosiveType()
+                        .setExplodeFunction(attractingExplosion(8.0))
+                        .setRegistryName(ResourceLocation(modid, "attractor_tnt")),
+                ExplosiveType()
+                        .setExplodeFunction(napalmExplosion(8.0))
+                        .setTexture(ResourceLocation("minecraft:block/lava_still"))
+                        .setRegistryName(ResourceLocation(modid, "napalm")),
+                ExplosiveType()
+                        .setExplodeFunction(frostExplosion(8.0))
+                        .setTexture(ResourceLocation("minecraft:block/packed_ice"))
+                        .setRegistryName(ResourceLocation(modid, "frost_bomb")),
+                ExplosiveType()
+                        .setExplodeFunction(netherExplosion(8.0))
+                        .setTexture(ResourceLocation("minecraft:block/nether_portal"))
+                        .setRegistryName(ResourceLocation(modid, "nether_bomb")),
+                ExplosiveType()
+                        .setExplodeFunction(glassingRay(16.0))
+                        .setClientFunction(glassingRayClient(16.0))
+                        .setRegistryName(ResourceLocation(modid, "glassing_ray")),
+                ExplosiveType()
+                        .setExplodeFunction(removeAllBlocks(128.0))
+                        .setRegistryName(ResourceLocation(modid, "nuke"))
+        )
+    }
+
+    @SubscribeEvent
     fun registerBlocks(event: RegistryEvent.Register<Block>) {
         event.registry.registerAll(
-                *explosives.map { it.createBlock() }.toTypedArray(),
-                *explosives.mapNotNull { it.createMissileBlock() }.toTypedArray()
+                *explosive_types.map { it.createBlock() }.toTypedArray(),
+                *explosive_types.mapNotNull { it.createMissileBlock() }.toTypedArray()
         )
     }
 
     @SubscribeEvent
     fun registerItems(event: RegistryEvent.Register<Item>) {
         event.registry.registerAll(
-                *explosives.map { it.createItem() }.toTypedArray(),
-                *explosives.mapNotNull { it.createMissileItem() }.toTypedArray(),
-                *explosives.mapNotNull { it.createBoomStick() }.toTypedArray(),
+                *explosive_types.map { it.createItem() }.toTypedArray(),
+                *explosive_types.mapNotNull { it.createMissileItem() }.toTypedArray(),
+                *explosive_types.mapNotNull { it.createBoomStick() }.toTypedArray(),
                 TargeterItem(Item.Properties().group(ItemGroup.TOOLS)).setRegistryName("targeter")
         )
     }
@@ -124,15 +152,15 @@ object ExplosivesSquared {
     @SubscribeEvent
     fun registerEntityTypes(event: RegistryEvent.Register<EntityType<out Entity>>) {
         event.registry.registerAll(
-                *explosives.map { it.createEntityType() }.toTypedArray(),
-                *explosives.mapNotNull { it.createMissileEntityType() }.toTypedArray(),
+                *explosive_types.map { it.createEntityType() }.toTypedArray(),
+                *explosive_types.mapNotNull { it.createMissileEntityType() }.toTypedArray(),
                 EntityType.Builder.create(::GlassingRayBeamEntity, EntityClassification.MISC).build("glassing_ray_beam").setRegistryName("glassing_ray_beam")
         )
     }
 
     @SubscribeEvent
     fun registerTileEntityTypes(event: RegistryEvent.Register<TileEntityType<out TileEntity>>) {
-        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosives.mapNotNull { if (it.shouldCreateMissile) it.missileBlock else null }.toTypedArray()).build(null).setRegistryName("missile"))
+        event.registry.register(TileEntityType.Builder.create(Supplier { MissileTileEntity() }, *explosive_types.mapNotNull { if (it.shouldCreateMissile) it.missileBlock else null }.toTypedArray()).build(null).setRegistryName("missile"))
     }
 
     @SubscribeEvent

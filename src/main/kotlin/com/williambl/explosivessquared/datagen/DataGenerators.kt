@@ -24,9 +24,9 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
     }
 
     override fun registerModels() {
-        ExplosivesSquared.explosives.forEach { makeItemModelFromBlock(it.block) }
-        ExplosivesSquared.explosives.forEach { if (it.shouldCreateMissile) makeItemModelFromBlock(it.missileBlock) }
-        ExplosivesSquared.explosives.forEach { if (it.shouldCreateBoomStick) makeBasicItemModel(it.boomStickItem, modLoc("item/boomstick")) }
+        ExplosivesSquared.explosive_types.forEach { makeItemModelFromBlock(it.block) }
+        ExplosivesSquared.explosive_types.forEach { if (it.shouldCreateMissile) makeItemModelFromBlock(it.missileBlock) }
+        ExplosivesSquared.explosive_types.forEach { if (it.shouldCreateBoomStick) makeBasicItemModel(it.boomStickItem, modLoc("item/boomstick")) }
         makeBasicItemModel(ItemHolder.targeter, modLoc("item/targeter"))
     }
 
@@ -46,7 +46,7 @@ class ItemModels(generator: DataGenerator?, existingFileHelper: ExistingFileHelp
 
 class BlockStates(gen: DataGenerator?, existingFileHelper: ExistingFileHelper?) : BlockStateProvider(gen, ExplosivesSquared.modid, existingFileHelper) {
     override fun registerStatesAndModels() {
-        ExplosivesSquared.explosives.forEach {
+        ExplosivesSquared.explosive_types.forEach {
             makeExplosiveBlockState(it.block, it.texture)
             if (it.shouldCreateMissile) makeMissileBlockState(it.missileBlock)
         }
@@ -93,8 +93,8 @@ class LootTables(val generator: DataGenerator) : LootTableProvider(generator) {
     private val lootTables: MutableMap<Block, LootTable.Builder> = HashMap()
 
     private fun addTables() {
-        ExplosivesSquared.explosives.forEach {
-            lootTables.put(it.block, createStandardTable(it.name, it.block))
+        ExplosivesSquared.explosive_types.forEach {
+            lootTables.put(it.block, createStandardTable(it.registryName!!.path, it.block))
             if (it.shouldCreateMissile) lootTables.put(it.missileBlock, createStandardTable(it.missileBlock.registryName!!.path, it.missileBlock))
         }
     }

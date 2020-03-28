@@ -10,6 +10,7 @@ import net.minecraft.network.datasync.DataParameter
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.particles.ParticleTypes
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraftforge.fml.network.NetworkHooks
@@ -68,9 +69,9 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
             this.remove()
             if (!this.world.isRemote) {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.explodeFunction?.invoke(this)
+                ExplosivesSquared.explosive_types.getValue(ResourceLocation(type.registryName!!.namespace, type.registryName!!.path.replace("_missile", "")))?.explodeFunction?.invoke(this)
             } else {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.clientFunction?.invoke(this)
+                ExplosivesSquared.explosive_types.getValue(ResourceLocation(type.registryName!!.namespace, type.registryName!!.path.replace("_missile", "")))?.clientFunction?.invoke(this)
             }
         } else {
             this.handleWaterMovement()

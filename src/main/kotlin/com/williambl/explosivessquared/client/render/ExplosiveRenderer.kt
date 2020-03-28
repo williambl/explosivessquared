@@ -27,10 +27,10 @@ class ExplosiveRenderer(renderManager: EntityRendererManager) : EntityRenderer<E
     override fun render(entity: ExplosiveEntity, entityYaw: Float, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, packedLight: Int) {
         val blockstate =
                 if (entity is MissileEntity)
-                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path.dropLast(8)]?.missileBlock?.defaultState
+                    ExplosivesSquared.explosive_types.getValue(ResourceLocation(entity.type.registryName!!.namespace, entity.type.registryName!!.path.replace("_missile", "")))?.missileBlock?.defaultState
                             ?: Blocks.AIR.defaultState
                 else
-                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path]?.block?.defaultState
+                    ExplosivesSquared.explosive_types.getValue(entity.type.registryName)?.block?.defaultState
                             ?: Blocks.AIR.defaultState
 
         if (blockstate.renderType == BlockRenderType.MODEL) {

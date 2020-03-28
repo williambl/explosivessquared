@@ -14,8 +14,11 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.registries.IForgeRegistryEntry
 
-class ExplosiveType(val name: String) {
+class ExplosiveType : IForgeRegistryEntry<ExplosiveType> {
+
+    private lateinit var registryName: ResourceLocation
 
     private var blockProperties = Block.Properties.create(Material.TNT)
     private var itemProperties = Item.Properties().group(ItemGroup.REDSTONE)
@@ -23,36 +26,36 @@ class ExplosiveType(val name: String) {
     private var missileItemProperties = Item.Properties().group(ItemGroup.REDSTONE)
     private var boomStickProperties = Item.Properties().group(ItemGroup.TOOLS)
 
-    public var explodeFunction: (ExplosiveEntity) -> Unit = {}
+    var explodeFunction: (ExplosiveEntity) -> Unit = {}
         private set
-    public var clientFunction: (ExplosiveEntity) -> Unit = {}
+    var clientFunction: (ExplosiveEntity) -> Unit = {}
         private set
-    public var fuse: Int = 80
+    var fuse: Int = 80
         private set
-    public lateinit var block: ExplosiveBlock
+    lateinit var block: ExplosiveBlock
         private set
-    public lateinit var missileBlock: MissileBlock
+    lateinit var missileBlock: MissileBlock
         private set
-    public lateinit var item: BlockItem
+    lateinit var item: BlockItem
         private set
-    public lateinit var missileItem: BlockItem
+    lateinit var missileItem: BlockItem
         private set
-    public lateinit var boomStickItem: BoomStickItem
+    lateinit var boomStickItem: BoomStickItem
         private set
-    public lateinit var entityType: EntityType<out ExplosiveEntity>
+    lateinit var entityType: EntityType<out ExplosiveEntity>
         private set
-    public lateinit var missileEntityType: EntityType<out MissileEntity>
-        private set
-
-    public var shouldCreateMissile = true
-        private set
-    public var shouldCreateBoomStick = true
+    lateinit var missileEntityType: EntityType<out MissileEntity>
         private set
 
-    public var texture: ResourceLocation = Blocks.AIR.registryName ?: ResourceLocation("")
+    var shouldCreateMissile = true
+        private set
+    var shouldCreateBoomStick = true
+        private set
+
+    var texture: ResourceLocation = Blocks.AIR.registryName ?: ResourceLocation("")
         get() =
             if (field == Blocks.AIR.registryName)
-                ResourceLocation("explosivessquared:block/explosive/${block.registryName?.path ?: "explosive"}")
+                ResourceLocation("explosivessquared:block/explosive/${registryName.path ?: "explosive"}")
             else field
         private set
 
@@ -103,7 +106,7 @@ class ExplosiveType(val name: String) {
 
     fun createBlock(): ExplosiveBlock {
         block = ExplosiveBlock(this, blockProperties)
-        block.setRegistryName(name)
+        block.registryName = registryName
         return block
     }
 
@@ -112,7 +115,7 @@ class ExplosiveType(val name: String) {
             return null
         if (this::block.isInitialized) {
             missileBlock = MissileBlock(this, missileBlockProperties)
-            missileBlock.setRegistryName(name + "_missile")
+            missileBlock.setRegistryName("${registryName.namespace}:${registryName.path}_missile")
             return missileBlock
         } else throw UninitializedPropertyAccessException("Tried to create Missile Block before Block!")
     }
@@ -120,7 +123,7 @@ class ExplosiveType(val name: String) {
     fun createItem(): BlockItem {
         if (this::block.isInitialized) {
             val item = BlockItem(block, itemProperties)
-            item.setRegistryName(name)
+            item.registryName = registryName
             return item
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
@@ -130,7 +133,7 @@ class ExplosiveType(val name: String) {
             return null
         if (this::missileBlock.isInitialized) {
             val item = BlockItem(missileBlock, missileItemProperties)
-            item.setRegistryName(name + "_missile")
+            item.setRegistryName("${registryName.namespace}:${registryName.path}_missile")
             return item
         } else throw UninitializedPropertyAccessException("Tried to create Missile Item before Missile Block!")
     }
@@ -140,14 +143,14 @@ class ExplosiveType(val name: String) {
             return null
         if (this::block.isInitialized) {
             boomStickItem = BoomStickItem(this, boomStickProperties)
-            boomStickItem.setRegistryName(name + "_boomstick")
+            boomStickItem.setRegistryName("${registryName.namespace}:${registryName.path}_boomstick")
             return boomStickItem
         } else throw UninitializedPropertyAccessException("Tried to create Item before Block!")
     }
 
     fun createEntityType(): EntityType<*>? {
         if (this::block.isInitialized) {
-            entityType = EntityType.Builder.create(::ExplosiveEntity, EntityClassification.MISC).build(name).setRegistryName(name) as EntityType<out ExplosiveEntity>
+            entityType = EntityType.Builder.create(::ExplosiveEntity, EntityClassification.MISC).build(registryName.path).setRegistryName(registryName) as EntityType<out ExplosiveEntity>
             return entityType
         } else throw UninitializedPropertyAccessException("Tried to create EntityType before Block!")
     }
@@ -157,9 +160,22 @@ class ExplosiveType(val name: String) {
             return null
         if (this::missileBlock.isInitialized) {
             if (this::entityType.isInitialized) {
-                missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).setTrackingRange(256).build(name + "_missile").setRegistryName(name + "_missile") as EntityType<out MissileEntity>
+                missileEntityType = EntityType.Builder.create(::MissileEntity, EntityClassification.MISC).setTrackingRange(256).build("${registryName.namespace}:${registryName.path}_missile").setRegistryName("${registryName.namespace}:${registryName.path}_missile") as EntityType<out MissileEntity>
                 return missileEntityType
             } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before EntityType!")
         } else throw UninitializedPropertyAccessException("Tried to create Missile EntityType before Missile Block!")
+    }
+
+    override fun getRegistryName(): ResourceLocation? {
+        return registryName
+    }
+
+    override fun getRegistryType(): Class<ExplosiveType> {
+        return this.javaClass
+    }
+
+    override fun setRegistryName(registryName: ResourceLocation?): ExplosiveType {
+        this.registryName = registryName!!
+        return this
     }
 }
