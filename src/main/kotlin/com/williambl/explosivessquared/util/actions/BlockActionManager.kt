@@ -1,6 +1,7 @@
 package com.williambl.explosivessquared.util.actions
 
 import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.util.BlockPosSeq3D
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -13,7 +14,7 @@ import net.minecraft.world.World
 import net.minecraftforge.fml.LogicalSide
 import net.minecraftforge.fml.LogicalSidedProvider
 
-class BlockActionManager(val world: World, val positions: Sequence<Sequence<Triple<Int, Int, Int>>>) {
+class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
 
     private val actions: MutableList<BlockAction> = mutableListOf()
     private val filters: MutableList<(World, BlockPos, BlockState) -> Boolean> = mutableListOf()
@@ -31,19 +32,23 @@ class BlockActionManager(val world: World, val positions: Sequence<Sequence<Trip
     public fun start() {
         GlobalScope.launch(ExplosivesSquared.threadPool) {
             val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
-            positions.map { seq ->
+            positions.second.map { xseq ->
                 async {
-                    val pos = BlockPos.Mutable(0, 0, 0)
-                    seq.forEach { triple ->
-                        if (triple.second > 256 || triple.second < 0)
-                            return@forEach
-                        pos.setPos(triple.first, triple.second, triple.third)
+                    val x = xseq.first
+                    xseq.second.forEach { zseq ->
+                        val z = zseq.first
+                        val seq = zseq.second
+
+                        val pos = BlockPos.Mutable(x, 0, z)
 
                         executor.deferTask {
-                            actions.forEach {
-                                val bs = world.getBlockState(pos)
-                                if (filters.all { it(world, pos, bs) } && it.matches(world, pos, bs))
-                                    it.process(world, pos)
+                            seq.forEach { y ->
+                                pos.setPos(positions.first.x + x, positions.first.y + y, positions.first.z + z)
+                                actions.forEach {
+                                    val bs = world.getBlockState(pos)
+                                    if (filters.all { it(world, pos, bs) } && it.matches(world, pos, bs))
+                                        it.process(world, pos)
+                                }
                             }
                         }.await()
                     }

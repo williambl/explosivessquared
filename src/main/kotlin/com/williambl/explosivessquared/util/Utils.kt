@@ -10,6 +10,9 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+typealias BlockPosSeq3D = Pair<BlockPos, Sequence<Pair<Int, Sequence<Pair<Int, Sequence<Int>>>>>>
+typealias BlockPosSeq2D = Sequence<Pair<Int, Sequence<Int>>>
+
 fun getLengthOfChord(radius: Int, distanceFromCentre: Int): Int {
     val radD = radius.toDouble()
     val distD = distanceFromCentre.absoluteValue.toDouble() - 0.25
@@ -22,12 +25,16 @@ fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
     return getAllInLine(radius).map { y -> getAllInCircle(getLengthOfChord(radius, y)).map { xz -> mPos.setPos(this.x + xz.first, this.y + y, this.z + xz.second) } }.flatten()
 }
 
-fun BlockPos.getAllInSphereSeq(radius: Int): Sequence<Sequence<Triple<Int, Int, Int>>> {
-    return getAllInLine(radius).map { x -> getAllInCircle(getLengthOfChord(radius, x)).map { yz -> Triple(this.x + x, this.y + yz.first, this.z + yz.second) } }
+fun BlockPos.getAllInSphereSeq(radius: Int): BlockPosSeq3D {
+    return Pair(this, getAllInLine(radius).map { x -> Pair(x, getAllInCircleSeq(getLengthOfChord(radius, x))) })
 }
 
 fun getAllInCircle(radius: Int): Sequence<Pair<Int, Int>> {
     return getAllInLine(radius).map { x -> getAllInLine(getLengthOfChord(radius, x)).map { y -> Pair(x, y) } }.flatten()
+}
+
+fun getAllInCircleSeq(radius: Int): BlockPosSeq2D {
+    return getAllInLine(radius).map { x -> Pair(x, getAllInLine(getLengthOfChord(radius, x))) }
 }
 
 fun getAllInLine(radius: Int): Sequence<Int> {
