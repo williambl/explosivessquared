@@ -21,6 +21,7 @@ import net.minecraft.item.ItemGroup
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.tileentity.TileEntityType
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.SoundEvents
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.client.registry.RenderingRegistry
@@ -45,30 +46,38 @@ object ExplosivesSquared {
     var explosives: List<ExplosiveType> = listOf(
             ExplosiveType("big_tnt")
                     .setExplodeFunction(regularExplosion(15f))
+                    .setClientFunction(explosionSound)
                     .setTexture(ResourceLocation("minecraft:block/tnt_side")),
             ExplosiveType("slow_tnt")
                     .setFuseLength(160)
                     .setExplodeFunction(regularExplosion(15f))
+                    .setClientFunction(explosionSound)
                     .noBoomstick()
                     .noMissile(),
             ExplosiveType("vegetation_destroyer")
-                    .setExplodeFunction(vegetationDestroyerExplosion(8.0)),
+                    .setExplodeFunction(vegetationDestroyerExplosion(8.0))
+                    .setClientFunction(explosionSound),
             ExplosiveType("gravitationaliser")
-                    .setExplodeFunction(gravitationalisingExplosion(8.0)),
+                    .setExplodeFunction(gravitationalisingExplosion(8.0))
+                    .setClientFunction(playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, volume = 4.0f)),
             ExplosiveType("tnt_rainer")
                     .setExplodeFunction(tntRainingExplosion(16, 16.0)),
             ExplosiveType("repulsor_tnt")
-                    .setExplodeFunction(repellingExplosion(8.0)),
+                    .setExplodeFunction(repellingExplosion(8.0))
+                    .setClientFunction(explosionSound),
             ExplosiveType("attractor_tnt")
-                    .setExplodeFunction(attractingExplosion(8.0)),
+                    .setExplodeFunction(attractingExplosion(8.0))
+                    .setClientFunction(explosionSound),
             ExplosiveType("napalm")
                     .setExplodeFunction(napalmExplosion(8.0))
                     .setTexture(ResourceLocation("minecraft:block/lava_still")),
             ExplosiveType("frost_bomb")
                     .setExplodeFunction(frostExplosion(8.0))
+                    .setClientFunction(playSound(SoundEvents.ENTITY_SNOW_GOLEM_AMBIENT, volume = 4.0f))
                     .setTexture(ResourceLocation("minecraft:block/packed_ice")),
             ExplosiveType("nether_bomb")
                     .setExplodeFunction(netherExplosion(8.0))
+                    .setClientFunction(playSound(SoundEvents.BLOCK_PORTAL_TRIGGER, volume = 4.0f))
                     .setTexture(ResourceLocation("minecraft:block/nether_portal")),
             ExplosiveType("glassing_ray")
                     .setExplodeFunction(glassingRay(16.0))
