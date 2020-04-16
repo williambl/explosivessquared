@@ -30,6 +30,12 @@ import kotlin.math.roundToInt
 
 typealias ExplosionFunction = (ExplosiveEntity) -> Unit
 
+fun combine(vararg funcs: ExplosionFunction): ExplosionFunction {
+    return {
+        funcs.forEach { func -> func(it) }
+    }
+}
+
 fun regularExplosion(radius: Float): ExplosionFunction {
     return { it.world.createExplosion(it, it.posX, it.posY, it.posZ, radius, Explosion.Mode.DESTROY) }
 }
@@ -80,7 +86,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.isInvulnerable = true
                         val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
                         val velocityVector = fallingEntity.positionVec.subtract(it.positionVec).normalize().mul(speed, speed, speed)
-                        fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                        fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
                 })
@@ -107,7 +113,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.isInvulnerable = true
                         val speed = radius / (fallingEntity.positionVec.distanceTo(it.positionVec))
                         val velocityVector = it.positionVec.subtract(fallingEntity.positionVec).normalize().mul(speed, speed, speed)
-                        fallingEntity.setVelocity(velocityVector.x, velocityVector.y, velocityVector.z)
+                        fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
                 })

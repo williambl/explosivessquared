@@ -1,14 +1,11 @@
 package com.williambl.explosivessquared
 
 import com.williambl.explosivessquared.block.tileentity.MissileTileEntity
-import com.williambl.explosivessquared.client.render.ExplosiveRenderer
-import com.williambl.explosivessquared.client.render.GlassingRayBeamRenderer
 import com.williambl.explosivessquared.datagen.BlockStates
 import com.williambl.explosivessquared.datagen.ItemModels
 import com.williambl.explosivessquared.datagen.LootTables
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.item.TargeterItem
-import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import kotlinx.coroutines.asCoroutineDispatcher
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.RenderType
@@ -24,9 +21,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.SoundEvents
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent
@@ -91,24 +86,9 @@ object ExplosivesSquared {
     @SubscribeEvent
     public fun setup(event: FMLCommonSetupEvent) {
         explosiveMap = explosives.map { it.name to it }.toMap()
-        explosives.forEach {
-            if (it.shouldCreateMissile)
-                RenderTypeLookup.setRenderLayer(it.missileBlock, RenderType.getCutout())
-            RenderTypeLookup.setRenderLayer(it.block, RenderType.getCutout())
-        }
     }
 
-    @SubscribeEvent
-    public fun doClientStuff(event: FMLClientSetupEvent) {
-        explosives.forEach {
-            RenderingRegistry.registerEntityRenderingHandler(it.entityType, ::ExplosiveRenderer)
-            if (it.shouldCreateMissile)
-                RenderingRegistry.registerEntityRenderingHandler(it.missileEntityType, ::ExplosiveRenderer)
-        }
-        RenderingRegistry.registerEntityRenderingHandler(EntityTypeHolder.glassingRayBeam, ::GlassingRayBeamRenderer)
-    }
-
-    @SubscribeEvent
+   @SubscribeEvent
     fun onServerStarting(event: FMLServerStartingEvent) {
     }
 
