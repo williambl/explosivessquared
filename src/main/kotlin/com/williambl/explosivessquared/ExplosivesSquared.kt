@@ -76,7 +76,8 @@ object ExplosivesSquared {
                     .setTexture(ResourceLocation("minecraft:block/nether_portal")),
             ExplosiveType("glassing_ray")
                     .setExplodeFunction(glassingRay(16.0))
-                    .setClientFunction(glassingRayClient(16.0)),
+                    .setClientFunction(glassingRayClient(16.0))
+                    .setTexture(ResourceLocation("explosivessquared:entity/glassing_ray_beam")),
             ExplosiveType("nuke")
                     .setExplodeFunction(removeAllBlocks(128.0))
     )
@@ -88,7 +89,7 @@ object ExplosivesSquared {
         explosiveMap = explosives.map { it.name to it }.toMap()
     }
 
-   @SubscribeEvent
+    @SubscribeEvent
     fun onServerStarting(event: FMLServerStartingEvent) {
     }
 

@@ -1,7 +1,7 @@
 {
   "parent": "explosivessquared:block/explosive",
   "textures": {
-    "within": "explosivessquared:block/explosive/glassing_ray",
+    "within": "explosivessquared:entity/glassing_ray_beam",
     "bottom": "explosivessquared:block/explosive/explosive_bottom",
     "top": "explosivessquared:block/explosive/explosive_top",
     "side": "explosivessquared:block/explosive/explosive_side"
