@@ -42,7 +42,7 @@ open class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
                         val pos = BlockPos.Mutable(x, 0, z)
 
                         executor.deferTask {
-                            seq.forEach { y ->
+                            seq.filter { y -> positions.first.y + y >= 0 && positions.first.y + y <= world.maxHeight }.forEach { y ->
                                 pos.setPos(positions.first.x + x, positions.first.y + y, positions.first.z + z)
                                 actions.forEach {
                                     val bs = world.getBlockState(pos)
