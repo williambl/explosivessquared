@@ -303,7 +303,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
 
 fun removeAllBlocks(radius: Double): ExplosionFunction {
     return {
-        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
+        MassBlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addFilter(isNotAir)
                 .addAction(BlockRemovalAction { _, _, _ -> true })
                 .start()
