@@ -6,5 +6,5 @@ import net.minecraft.world.World
 
 interface BlockAction {
     fun matches(world: World, blockPos: BlockPos, blockState: BlockState): Boolean
-    fun process(world: World, blockPos: BlockPos)
+    fun process(world: World, blockPos: BlockPos): BlockState
 }

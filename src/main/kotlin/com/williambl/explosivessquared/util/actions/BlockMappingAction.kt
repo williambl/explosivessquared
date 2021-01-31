@@ -32,7 +32,7 @@ class BlockMappingAction(val predicate: ((World, BlockPos, BlockState) -> Boolea
         return predicate?.invoke(world, blockPos, blockState) ?: inputs.contains(blockState.block)
     }
 
-    override fun process(world: World, blockPos: BlockPos) {
-        world.setBlockState(blockPos, outputs[world.rand.nextInt(outputs.size)].defaultState, 2)
+    override fun process(world: World, blockPos: BlockPos): BlockState {
+        return outputs[world.rand.nextInt(outputs.size)].defaultState
     }
 }

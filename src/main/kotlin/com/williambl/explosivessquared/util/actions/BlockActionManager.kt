@@ -14,10 +14,10 @@ import net.minecraft.world.World
 import net.minecraftforge.fml.LogicalSide
 import net.minecraftforge.fml.LogicalSidedProvider
 
-class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
+open class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
 
-    private val actions: MutableList<BlockAction> = mutableListOf()
-    private val filters: MutableList<(World, BlockPos, BlockState) -> Boolean> = mutableListOf()
+    protected val actions: MutableList<BlockAction> = mutableListOf()
+    protected val filters: MutableList<(World, BlockPos, BlockState) -> Boolean> = mutableListOf()
 
     public fun addAction(action: BlockAction): BlockActionManager {
         actions.add(action)
@@ -29,7 +29,7 @@ class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
         return this
     }
 
-    public fun start() {
+    public open fun start() {
         GlobalScope.launch(ExplosivesSquared.threadPool) {
             val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
             positions.second.map { xseq ->
@@ -47,7 +47,7 @@ class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
                                 actions.forEach {
                                     val bs = world.getBlockState(pos)
                                     if (filters.all { it(world, pos, bs) } && it.matches(world, pos, bs))
-                                        it.process(world, pos)
+                                        world.setBlockState(pos, it.process(world, pos))
                                 }
                             }
                         }.await()
@@ -56,5 +56,4 @@ class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
             }.toList().awaitAll()
         }
     }
-
 }

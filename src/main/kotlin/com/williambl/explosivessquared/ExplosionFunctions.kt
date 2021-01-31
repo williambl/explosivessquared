@@ -4,10 +4,7 @@ import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import com.williambl.explosivessquared.util.*
-import com.williambl.explosivessquared.util.actions.BlockActionManager
-import com.williambl.explosivessquared.util.actions.BlockFunctionAction
-import com.williambl.explosivessquared.util.actions.BlockMappingAction
-import com.williambl.explosivessquared.util.actions.BlockRemovalAction
+import com.williambl.explosivessquared.util.actions.*
 import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
 import net.minecraft.block.SpreadableSnowyDirtBlock
@@ -58,6 +55,7 @@ fun gravitationalisingExplosion(radius: Double): ExplosionFunction {
                     val fallingEntity = FallingBlockEntity(world, pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5, world.getBlockState(pos))
                     fallingEntity.setHurtEntities(true)
                     world.addEntity(fallingEntity)
+                    Blocks.AIR.defaultState
                 })
                 .start()
     }
@@ -89,6 +87,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
+                    Blocks.AIR.defaultState
                 })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
@@ -116,6 +115,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
+                    Blocks.AIR.defaultState
                 })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
@@ -133,7 +133,7 @@ fun napalmExplosion(radius: Double): ExplosionFunction {
         it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
         BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 .addAction(BlockFunctionAction(isAir, { world, pos ->
-                    world.setBlockState(pos, Blocks.FIRE.defaultState)
+                    Blocks.FIRE.defaultState
                 }))
                 .start()
     }
@@ -147,12 +147,17 @@ fun frostExplosion(radius: Double): ExplosionFunction {
                 .addAction(BlockMappingAction(Blocks.FIRE, Blocks.AIR))
                 .addAction(BlockMappingAction(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK))
                 .addAction(BlockMappingAction(random(0.05), Blocks.ICE))
-                .addAction(BlockFunctionAction({ world, pos, _ ->
-                    world.getBlockState(pos.up()).isAir(world, pos) && Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, world, pos.up())
-                }, { world, pos -> world.setBlockState(pos.up(), Blocks.SNOW.defaultState, 2) }))
+
                 .addAction(BlockMappingAction(Blocks.WATER, Blocks.ICE))
                 .addAction(BlockMappingAction(Blocks.LAVA, Blocks.STONE))
                 .start()
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.roundToInt()))
+            .addFilter(isAir)
+            .addAction(BlockFunctionAction({ world, pos, state ->
+                Blocks.SNOW.isValidPosition(Blocks.SNOW.defaultState, world, pos)
+            }, { world, pos -> Blocks.SNOW.defaultState  }))
+            .start()
+
         it.world.getEntitiesInSphere(it.position, radius, it)
                 .forEach { entity ->
                     var damage =
