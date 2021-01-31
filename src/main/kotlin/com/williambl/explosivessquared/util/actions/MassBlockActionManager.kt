@@ -2,26 +2,22 @@ package com.williambl.explosivessquared.util.actions
 
 import com.williambl.explosivessquared.ExplosivesSquared
 import com.williambl.explosivessquared.util.BlockPosSeq3D
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.network.play.server.SChunkDataPacket
 import net.minecraft.util.concurrent.ThreadTaskExecutor
+import net.minecraft.util.concurrent.TickDelayedTask
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.SectionPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.chunk.ChunkSection
-import net.minecraft.world.chunk.IChunk
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.fml.LogicalSide
 import net.minecraftforge.fml.LogicalSidedProvider
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.server.ServerChunkProvider
-import net.minecraft.world.server.ServerWorld
+import java.lang.Runnable
 
 
 class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActionManager(world, positions) {
@@ -30,7 +26,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
 
     private fun addChunkJob(x: Int, y: Int, z: Int, job: (ChunkSection?, Chunk, World, BlockPos, Int, Int, Int) -> Unit) {
         chunkJobs.computeIfAbsent(ChunkPos.asLong(x shr 4, z shr 4)) { mutableListOf() }.add(
-            Pair(BlockPos.pack(x, y, z), job)
+                Pair(BlockPos.pack(x, y, z), job)
         )
     }
 
@@ -61,43 +57,44 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
             }
         }
 
+        val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
         chunkJobs.forEach { chunkJobCollection ->
-            val chunk =
-                world.getChunk(ChunkPos.getX(chunkJobCollection.key), ChunkPos.getZ(chunkJobCollection.key))
-            val sections = chunk.sections
-            val mutablePos = BlockPos.Mutable()
+            executor.enqueue(TickDelayedTask((world as ServerWorld).server.tickCounter) {
+                val chunk =
+                        world.getChunk(ChunkPos.getX(chunkJobCollection.key), ChunkPos.getZ(chunkJobCollection.key))
+                val sections = chunk.sections
+                val mutablePos = BlockPos.Mutable()
 
-            chunkJobCollection.value.forEach { chunkJobData ->
-                mutablePos.setPos(
-                    BlockPos.unpackX(chunkJobData.first),
-                    BlockPos.unpackY(chunkJobData.first),
-                    BlockPos.unpackZ(chunkJobData.first)
-                )
-                chunkJobData.second(
-                    sections[mutablePos.y shr 4],
-                    chunk,
-                    world,
-                    mutablePos,
-                    mutablePos.x and 15,
-                    mutablePos.y and 15,
-                    mutablePos.z and 15
-                )
-            }
+                chunkJobCollection.value.forEach { chunkJobData ->
+                    mutablePos.setPos(
+                            BlockPos.unpackX(chunkJobData.first),
+                            BlockPos.unpackY(chunkJobData.first),
+                            BlockPos.unpackZ(chunkJobData.first)
+                    )
+                    chunkJobData.second(
+                            sections[mutablePos.y shr 4],
+                            chunk,
+                            world,
+                            mutablePos,
+                            mutablePos.x and 15,
+                            mutablePos.y and 15,
+                            mutablePos.z and 15
+                    )
+                }
 
-            chunk.markDirty()
-            sections.filterNotNull().forEach { section ->
-                chunk.worldLightManager?.updateSectionStatus(
-                    SectionPos.from(
-                        chunk.pos,
-                        section.yLocation shr 4
-                    ), ChunkSection.isEmpty(section)
-                )
-            }
-            if (world is ServerWorld) {
+                chunk.markDirty()
+                sections.filterNotNull().forEach { section ->
+                    chunk.worldLightManager?.updateSectionStatus(
+                            SectionPos.from(
+                                    chunk.pos,
+                                    section.yLocation shr 4
+                            ), ChunkSection.isEmpty(section)
+                    )
+                }
                 world.chunkProvider.chunkManager.getTrackingPlayers(chunk.pos, false).forEach { player ->
                     player.connection.sendPacket(SChunkDataPacket(chunk, 65535))
                 }
-            }
+            })
         }
     }
 }
