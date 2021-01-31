@@ -8,8 +8,6 @@ import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.item.TargeterItem
 import kotlinx.coroutines.asCoroutineDispatcher
 import net.minecraft.block.Block
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.RenderTypeLookup
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityClassification
 import net.minecraft.entity.EntityType
@@ -80,6 +78,10 @@ object ExplosivesSquared {
                     .setTexture(ResourceLocation("explosivessquared:entity/glassing_ray_beam")),
             ExplosiveType("nuke")
                     .setExplodeFunction(removeAllBlocks(128.0))
+                    .setTexture(ResourceLocation("minecraft:block/tnt_side")),
+            ExplosiveType("mini_nuke")
+                    .setExplodeFunction(removeAllBlocks(64.0))
+                    .setTexture(ResourceLocation("minecraft:block/tnt_side"))
     )
 
     lateinit var explosiveMap: Map<String, ExplosiveType>

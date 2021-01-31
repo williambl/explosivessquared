@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/nuke"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/nuke"
+    }
+  }
+}
