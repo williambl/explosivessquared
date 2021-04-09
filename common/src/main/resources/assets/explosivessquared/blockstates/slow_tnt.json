@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/slow_tnt"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/slow_tnt"
+    }
+  }
+}

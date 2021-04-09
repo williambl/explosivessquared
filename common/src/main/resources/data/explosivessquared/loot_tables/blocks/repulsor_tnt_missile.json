@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "repulsor_tnt_missile",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "explosivessquared:repulsor_tnt_missile"
+        }
+      ]
+    }
+  ]
+}

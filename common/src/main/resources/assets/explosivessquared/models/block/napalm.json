@@ -1,0 +1,9 @@
+{
+  "parent": "explosivessquared:block/explosive",
+  "textures": {
+    "within": "block/lava_still",
+    "bottom": "explosivessquared:block/explosive/explosive_bottom",
+    "top": "explosivessquared:block/explosive/explosive_top",
+    "side": "explosivessquared:block/explosive/explosive_side"
+  }
+}

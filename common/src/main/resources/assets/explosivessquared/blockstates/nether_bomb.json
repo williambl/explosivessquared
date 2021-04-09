@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "unstable=false": {
+      "model": "explosivessquared:block/nether_bomb"
+    },
+    "unstable=true": {
+      "model": "explosivessquared:block/nether_bomb"
+    }
+  }
+}
