@@ -4,6 +4,7 @@ import com.williambl.explosivessquared.util.BlockPosSeq3D
 import net.minecraft.block.Blocks
 import net.minecraft.network.play.server.SChunkDataPacket
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.SectionPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
@@ -15,7 +16,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
     private val chunkJobs: MutableMap<Long, MutableList<Pair<Long, (ChunkSection?, Chunk, World, BlockPos, Int, Int, Int) -> Unit>>> = mutableMapOf()
 
     private fun addChunkJob(x: Int, y: Int, z: Int, job: (ChunkSection?, Chunk, World, BlockPos, Int, Int, Int) -> Unit) {
-        chunkJobs.computeIfAbsent(((x shr 4).toLong() shl 32) or (z shr 4).toLong()) { mutableListOf() }.add(
+        chunkJobs.computeIfAbsent(ChunkPos.asLong(x shr 4, z shr 4)) { mutableListOf() }.add(
             Pair(BlockPos.pack(x, y, z), job)
         )
     }
@@ -49,7 +50,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
 
         chunkJobs.forEach { chunkJobCollection ->
             val chunk =
-                world.getChunk((chunkJobCollection.key shr 32).toInt(), chunkJobCollection.key.toInt())
+                world.getChunk(ChunkPos.getX(chunkJobCollection.key), ChunkPos.getZ(chunkJobCollection.key))
             val sections = chunk.sections
             val mutablePos = BlockPos.Mutable()
 
