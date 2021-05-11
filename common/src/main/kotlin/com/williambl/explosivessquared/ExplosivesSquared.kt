@@ -84,7 +84,10 @@ object ExplosivesSquared {
                     .setClientFunction(glassingRayClient(16.0))
                     .setTexture(ResourceLocation("explosivessquared:entity/glassing_ray_beam")),
             ExplosiveType(ResourceLocation(modid, "nuke"))
-                    .setExplodeFunction(removeAllBlocks(128.0))
+                    .setExplodeFunction(removeAllBlocks(128.0)),
+            ExplosiveType(ResourceLocation(modid, "mini_nuke"))
+                    .setExplodeFunction(removeAllBlocks(64.0))
+                    .setTexture(ResourceLocation("minecraft:block/tnt_side"))
     )
 
     lateinit var explosiveMap: Map<ResourceLocation, ExplosiveType>
