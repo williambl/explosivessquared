@@ -3,16 +3,16 @@ package com.williambl.explosivessquared.util.actions
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.tags.Tag
+import net.minecraft.tags.ITag
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-class BlockFunctionAction(val predicate: ((World, BlockPos, BlockState) -> Boolean)? = null, tagInput: Tag<Block>? = null, blocksInput: Collection<Block>? = null,
+class BlockFunctionAction(val predicate: ((World, BlockPos, BlockState) -> Boolean)? = null, tagInput: ITag<Block>? = null, blocksInput: Collection<Block>? = null,
                           val function: (World, BlockPos) -> BlockState) : BlockAction {
 
     val inputs: List<Block> = tagInput?.allElements?.toList() ?: blocksInput?.toList() ?: listOf(Blocks.AIR)
 
-    constructor(input: Tag<Block>, function: (World, BlockPos) -> BlockState) : this(tagInput = input, function = function)
+    constructor(input: ITag<Block>, function: (World, BlockPos) -> BlockState) : this(tagInput = input, function = function)
     constructor(input: Collection<Block>, function: (World, BlockPos) -> BlockState) : this(blocksInput = input, function = function)
     constructor(input: Block, function: (World, BlockPos) -> BlockState) : this(blocksInput = listOf(input), function = function)
     constructor(input: ((World, BlockPos, BlockState) -> Boolean), function: (World, BlockPos) -> BlockState) : this(predicate = input, function = function)

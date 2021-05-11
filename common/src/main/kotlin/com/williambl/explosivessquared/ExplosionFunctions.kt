@@ -2,7 +2,6 @@ package com.williambl.explosivessquared
 
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
-import com.williambl.explosivessquared.objectholders.EntityTypeHolder
 import com.williambl.explosivessquared.util.*
 import com.williambl.explosivessquared.util.actions.*
 import net.minecraft.block.Blocks
@@ -13,16 +12,15 @@ import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
 import net.minecraft.entity.monster.MagmaCubeEntity
 import net.minecraft.entity.monster.SlimeEntity
-import net.minecraft.entity.monster.ZombiePigmanEntity
+import net.minecraft.entity.monster.piglin.PiglinEntity
 import net.minecraft.entity.passive.PigEntity
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.DamageSource
 import net.minecraft.util.Direction
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
+import net.minecraft.world.DimensionType
 import net.minecraft.world.Explosion
-import net.minecraftforge.common.Tags
 import kotlin.math.roundToInt
 
 typealias ExplosionFunction = (ExplosiveEntity) -> Unit
@@ -64,8 +62,7 @@ fun gravitationalisingExplosion(radius: Double): ExplosionFunction {
 fun tntRainingExplosion(amount: Int, spread: Double): ExplosionFunction {
     return {
         for (i in 0 until amount) {
-            var pos = Vec3d(it.position)
-            pos = pos.add((it.world.rand.nextDouble() - 0.5) * spread, 20.0, (it.world.rand.nextDouble() - 0.5) * spread)
+            val pos = it.positionVec.add((it.world.rand.nextDouble() - 0.5) * spread, 20.0, (it.world.rand.nextDouble() - 0.5) * spread)
             val tntEntity = TNTEntity(it.world, pos.x, pos.y, pos.z, null)
             it.world.addEntity(tntEntity)
         }
@@ -169,7 +166,7 @@ fun frostExplosion(radius: Double): ExplosionFunction {
                     if (entity.type == EntityType.BLAZE || entity.type == EntityType.MAGMA_CUBE)
                         damage *= 3
 
-                    entity.attackEntityFrom(DamageSource("frost"), damage)
+                    entity.attackEntityFrom(object : DamageSource("frost") {}, damage)
 
                 }
     }
@@ -177,10 +174,10 @@ fun frostExplosion(radius: Double): ExplosionFunction {
 
 fun netherExplosion(radius: Double): ExplosionFunction {
     return {
-        if (!it.world.dimension.isNether) {
+        if (it.world.dimensionKey != DimensionType.THE_NETHER) {
             val mapping = BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                     .addFilter(isNotAir)
-                    .addAction(BlockMappingAction(Tags.Blocks.SAND, Blocks.SOUL_SAND))
+                    .addAction(BlockMappingAction(BlockTags.SAND, Blocks.SOUL_SAND))
                     .addAction(BlockMappingAction(Blocks.CLAY, Blocks.MAGMA_BLOCK))
                     .addAction(BlockMappingAction(Blocks.BRICKS, Blocks.NETHER_BRICKS))
                     .addAction(BlockMappingAction(Blocks.DIRT, Blocks.NETHERRACK))
@@ -211,7 +208,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                         }
 
                         if (entity.type == EntityType.PIG) {
-                            val newEntity = ZombiePigmanEntity(EntityType.ZOMBIE_PIGMAN, entity.world)
+                            val newEntity = PiglinEntity(EntityType.PIGLIN, entity.world)
                             newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
                             newEntity.customName = entity.customName
                             newEntity.isCustomNameVisible = entity.isCustomNameVisible
@@ -248,7 +245,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
                             entity.remove()
                         }
 
-                        if (entity.type == EntityType.ZOMBIE_PIGMAN) {
+                        if (entity.type == EntityType.PIGLIN) {
                             val newEntity = PigEntity(EntityType.PIG, entity.world)
                             newEntity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch)
                             newEntity.customName = entity.customName
@@ -261,7 +258,7 @@ fun netherExplosion(radius: Double): ExplosionFunction {
         }
 
         if (it.world.rand.nextDouble() < 0.1) {
-            val blockPlacingPos = BlockPos.Mutable(it.position)
+            val blockPlacingPos = BlockPos.Mutable().setPos(it.position)
             blockPlacingPos.move(Direction.UP).move(Direction.UP).move(Direction.UP)
             it.world.setBlockState(blockPlacingPos.move(Direction.UP), Blocks.OBSIDIAN.defaultState)
             it.world.setBlockState(blockPlacingPos.move(Direction.WEST), Blocks.OBSIDIAN.defaultState)
@@ -284,20 +281,20 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 fun glassingRay(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
-                .addAction(BlockMappingAction(BlockTags.SAND, Tags.Blocks.GLASS))
-                .addAction(BlockMappingAction(Tags.Blocks.GRAVEL, Tags.Blocks.STONE))
+                //.addAction(BlockMappingAction(BlockTags.SAND, BlockTags.GLASS))
+                //.addAction(BlockMappingAction(BlockTags.GRAVEL, BlockTags.STONE))
                 .addAction(BlockMappingAction(Blocks.CLAY, Blocks.TERRACOTTA))
                 .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
                 .addAction(BlockMappingAction(Blocks.GRASS_PATH, Blocks.COARSE_DIRT))
                 .addAction(BlockMappingAction(Blocks.COBBLESTONE, Blocks.STONE))
                 .addAction(BlockMappingAction(combine(isAir, fiftyFifty), Blocks.FIRE))
                 .addAction(BlockRemovalAction(BlockTags.ICE))
-                .addAction(BlockMappingAction(Tags.Blocks.STONE, listOf(Blocks.LAVA, Blocks.OBSIDIAN)))
+                .addAction(BlockMappingAction(BlockTags.BASE_STONE_OVERWORLD, listOf(Blocks.LAVA, Blocks.OBSIDIAN)))
                 .addAction(BlockMappingAction(Blocks.DIRT, listOf(Blocks.MAGMA_BLOCK, Blocks.COARSE_DIRT)))
                 .addAction(BlockRemovalAction { world, pos, _ -> FluidTags.WATER.contains(world.getFluidState(pos).fluid) })
                 .start()
 
-        it.world.addEntity(GlassingRayBeamEntity(EntityTypeHolder.glassingRayBeam, it.world, it.posX, it.posY, it.posZ))
+        it.world.addEntity(GlassingRayBeamEntity(ExplosivesSquared.glassingRayBeam.get(), it.world, it.posX, it.posY, it.posZ))
     }
 }
 

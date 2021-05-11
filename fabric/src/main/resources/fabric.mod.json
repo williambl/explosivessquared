@@ -16,7 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.examplemod.fabric.ExampleModFabric"
+      "com.williambl.explosivessquared.fabric.ExplosivesSquaredFabric"
+    ],
+    "client": [
+      "com.williambl.explosivessquared.fabric.ExplosivesSquaredClientFabric"
     ]
   },
   "depends": {
@@ -27,5 +30,8 @@
   },
   "suggests": {
     "flamingo": "*"
-  }
+  },
+  "mixins": [
+    "explosivessquared.mixins.json"
+  ]
 }

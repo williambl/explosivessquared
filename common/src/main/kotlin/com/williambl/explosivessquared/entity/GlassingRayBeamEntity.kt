@@ -1,5 +1,6 @@
 package com.williambl.explosivessquared.entity
 
+import com.williambl.explosivessquared.PlatformUtils
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntitySize
 import net.minecraft.entity.EntityType
@@ -12,10 +13,8 @@ import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.util.DamageSource
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.world.World
-import net.minecraftforge.fml.network.NetworkHooks
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 open class GlassingRayBeamEntity(type: EntityType<out GlassingRayBeamEntity>, worldIn: World) : Entity(type, worldIn) {
 
@@ -97,7 +96,7 @@ open class GlassingRayBeamEntity(type: EntityType<out GlassingRayBeamEntity>, wo
     }
 
     override fun createSpawnPacket(): IPacket<*> {
-        return NetworkHooks.getEntitySpawningPacket(this)
+        return PlatformUtils.createSpawnPacket(this)
     }
 
 }

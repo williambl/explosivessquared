@@ -1,8 +1,0 @@
-{
-  "parent": "explosivessquared:block/missile",
-  "textures": {
-    "body": "explosivessquared:block/missile/body",
-    "engine": "explosivessquared:block/missile/engine",
-    "top": "explosivessquared:block/missile/top"
-  }
-}

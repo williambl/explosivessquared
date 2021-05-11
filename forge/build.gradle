@@ -13,14 +13,14 @@ architectury {
 
 loom {
     useFabricMixin = true
+    mixinConfig "explosivessquared.mixins.json"
 }
-
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "me.shedaniel:architectury-forge:${rootProject.architectury_version}"
-    implementation "thedarkcolour:kotlinforforge:${rootProject.kotlin_for_forge_version}"
+    implementation 'thedarkcolour:kotlinforforge:1.7.0'
 
     implementation(project(path: ":common")) {
         transitive = false
@@ -63,9 +63,9 @@ java {
 }
 
 sourcesJar {
-    def commonSources = project(":common").remapSourcesJar
+    def commonSources = project(":common").sourcesJar
     dependsOn commonSources
-    from zipTree(commonSources.output)
+    from commonSources.archiveFile.map { zipTree(it) }
 }
 
 publishing {

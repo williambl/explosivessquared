@@ -1,21 +1,21 @@
 package com.williambl.explosivessquared.util
 
 import net.minecraft.block.BlockState
+import net.minecraft.block.BushBlock
 import net.minecraft.block.IGrowable
 import net.minecraft.block.VineBlock
 import net.minecraft.tags.BlockTags
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import net.minecraftforge.common.IPlantable
 
 typealias BlockPredicate = (World, BlockPos, BlockState) -> Boolean
 
 val isAir: BlockPredicate = { world, pos, state ->
-    state.isAir(world, pos)
+    state.isAir
 }
 
 val isNotAir: BlockPredicate = { world, pos, state ->
-    !state.isAir(world, pos)
+    !state.isAir
 }
 
 val isNotUnbreakable: BlockPredicate = { world, pos, state ->
@@ -28,7 +28,7 @@ val fiftyFifty: BlockPredicate = { world, _, _ ->
 
 val isVegetation: BlockPredicate = { world, pos, state ->
     BlockTags.LEAVES.contains(state.block)
-            || state.block is IPlantable
+            || state.block is BushBlock
             || state.block is IGrowable
             || state.block is VineBlock
 }

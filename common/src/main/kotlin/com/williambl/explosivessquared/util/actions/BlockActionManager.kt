@@ -1,6 +1,7 @@
 package com.williambl.explosivessquared.util.actions
 
 import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.mixin.ThreadTaskExecutorAccessor
 import com.williambl.explosivessquared.util.BlockPosSeq3D
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -11,8 +12,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.util.concurrent.ThreadTaskExecutor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import net.minecraftforge.fml.LogicalSide
-import net.minecraftforge.fml.LogicalSidedProvider
+import net.minecraft.world.server.ServerWorld
 
 open class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
 
@@ -31,7 +31,7 @@ open class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
 
     public open fun start() {
         GlobalScope.launch(ExplosivesSquared.threadPool) {
-            val executor = LogicalSidedProvider.WORKQUEUE.get<ThreadTaskExecutor<in Runnable>>(LogicalSide.SERVER)
+            val executor = (world as ServerWorld).server as ThreadTaskExecutorAccessor
             positions.second.map { xseq ->
                 async {
                     val x = xseq.first
@@ -41,8 +41,8 @@ open class BlockActionManager(val world: World, val positions: BlockPosSeq3D) {
 
                         val pos = BlockPos.Mutable(x, 0, z)
 
-                        executor.deferTask {
-                            seq.filter { y -> positions.first.y + y >= 0 && positions.first.y + y <= world.maxHeight }.forEach { y ->
+                        executor.callDeferTask {
+                            seq.filter { y -> positions.first.y + y >= 0 && positions.first.y + y <= world.height }.forEach { y ->
                                 pos.setPos(positions.first.x + x, positions.first.y + y, positions.first.z + z)
                                 actions.forEach {
                                     val bs = world.getBlockState(pos)

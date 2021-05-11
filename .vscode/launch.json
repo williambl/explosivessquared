@@ -38,7 +38,7 @@
       "vmArgs": "-Dfabric.dli.config\u003d/home/william/dev/explosivessquared/forge/.gradle/loom-cache/launch.cfg -Dfabric.dli.env\u003dclient -Dfabric.dli.main\u003dnet.minecraftforge.userdev.LaunchTesting -Darchitectury.main.class\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.main_class -Darchitectury.runtime.transformer\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.transforms -Darchitectury.properties\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.properties -Djdk.attach.allowAttachSelf\u003dtrue -javaagent:/home/william/dev/explosivessquared/.gradle/architectury/architectury-transformer-agent.jar",
       "args": "",
       "env": {
-        "MOD_CLASSES": "main_f74ff68%%/home/william/dev/explosivessquared/forge/build/resources/main:main_f74ff68%%/home/william/dev/explosivessquared/forge/build/classes/java/main:main_f74ff68%%/home/william/dev/explosivessquared/forge/build/classes/kotlin/main"
+        "MOD_CLASSES": "main_04a297e%%/home/william/dev/explosivessquared/forge/build/resources/main:main_04a297e%%/home/william/dev/explosivessquared/forge/build/classes/java/main"
       },
       "projectName": ":forge"
     },
@@ -53,7 +53,7 @@
       "vmArgs": "-Dfabric.dli.config\u003d/home/william/dev/explosivessquared/forge/.gradle/loom-cache/launch.cfg -Dfabric.dli.env\u003dserver -Dfabric.dli.main\u003dnet.minecraftforge.userdev.LaunchTesting -Darchitectury.main.class\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.main_class -Darchitectury.runtime.transformer\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.transforms -Darchitectury.properties\u003d/home/william/dev/explosivessquared/forge/.gradle/architectury/.properties -Djdk.attach.allowAttachSelf\u003dtrue -javaagent:/home/william/dev/explosivessquared/.gradle/architectury/architectury-transformer-agent.jar",
       "args": "nogui",
       "env": {
-        "MOD_CLASSES": "main_e5f3e26%%/home/william/dev/explosivessquared/forge/build/resources/main:main_e5f3e26%%/home/william/dev/explosivessquared/forge/build/classes/java/main:main_e5f3e26%%/home/william/dev/explosivessquared/forge/build/classes/kotlin/main"
+        "MOD_CLASSES": "main_f6a7091%%/home/william/dev/explosivessquared/forge/build/resources/main:main_f6a7091%%/home/william/dev/explosivessquared/forge/build/classes/java/main"
       },
       "projectName": ":forge"
     }

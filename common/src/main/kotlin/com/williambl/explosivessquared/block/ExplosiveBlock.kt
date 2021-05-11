@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.AbstractArrowEntity
+import net.minecraft.entity.projectile.ProjectileEntity
 import net.minecraft.item.Items
 import net.minecraft.state.StateContainer
 import net.minecraft.state.properties.BlockStateProperties
@@ -21,7 +22,7 @@ import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.world.Explosion
 import net.minecraft.world.World
 
-open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Block.Properties) : Block(properties) {
+open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Properties) : Block(properties) {
 
     init {
         this.defaultState = this.defaultState.with(BlockStateProperties.UNSTABLE, false)
@@ -94,10 +95,10 @@ open class ExplosiveBlock(val explosiveType: ExplosiveType, properties: Block.Pr
         }
     }
 
-    override fun onProjectileCollision(world: World, state: BlockState?, hit: BlockRayTraceResult?, projectile: Entity?) {
+    override fun onProjectileCollision(world: World, state: BlockState?, hit: BlockRayTraceResult?, projectile: ProjectileEntity?) {
         if (!world.isRemote && projectile is AbstractArrowEntity) {
             val abstractarrowentity = projectile as AbstractArrowEntity?
-            val entity = abstractarrowentity!!.shooter
+            val entity = abstractarrowentity!!.func_234616_v_()
             if (abstractarrowentity.isBurning) {
                 val blockpos = hit!!.pos
                 explode(world, blockpos, if (entity is LivingEntity) entity else null)

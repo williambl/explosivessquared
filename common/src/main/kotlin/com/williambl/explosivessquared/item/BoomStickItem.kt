@@ -9,9 +9,8 @@ import net.minecraft.util.*
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.math.RayTraceContext
 import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
-
 
 class BoomStickItem(val explosiveType: ExplosiveType, properties: Item.Properties) : Item(properties) {
 
@@ -29,7 +28,7 @@ class BoomStickItem(val explosiveType: ExplosiveType, properties: Item.Propertie
     }
 
     fun rayTrace(playerIn: PlayerEntity, blockReachDistance: Double, world: World): BlockRayTraceResult {
-        val eyeVector = Vec3d(playerIn.posX, playerIn.posY + playerIn.eyeHeight.toDouble(), playerIn.posZ)
+        val eyeVector = Vector3d(playerIn.posX, playerIn.posY + playerIn.eyeHeight.toDouble(), playerIn.posZ)
         val lookVector = playerIn.getLook(1f)
         val endVector = eyeVector.add(lookVector.x * blockReachDistance, lookVector.y * blockReachDistance, lookVector.z * blockReachDistance)
         return world.rayTraceBlocks(RayTraceContext(eyeVector, endVector, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, playerIn))

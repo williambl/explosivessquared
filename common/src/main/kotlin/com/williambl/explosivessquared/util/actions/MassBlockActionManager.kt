@@ -1,28 +1,14 @@
 package com.williambl.explosivessquared.util.actions
 
-import com.williambl.explosivessquared.ExplosivesSquared
 import com.williambl.explosivessquared.util.BlockPosSeq3D
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.network.play.server.SChunkDataPacket
-import net.minecraft.util.concurrent.ThreadTaskExecutor
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.SectionPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.chunk.ChunkSection
-import net.minecraft.world.chunk.IChunk
-import net.minecraftforge.fml.LogicalSide
-import net.minecraftforge.fml.LogicalSidedProvider
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.server.ServerChunkProvider
 import net.minecraft.world.server.ServerWorld
-
 
 class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActionManager(world, positions) {
 
@@ -40,7 +26,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
             xseq.second.forEach { zseq ->
                 val z = zseq.first
                 val seq = zseq.second
-                seq.filter { y -> positions.first.y + y >= 0 && positions.first.y + y <= world.maxHeight }.forEach { y ->
+                seq.filter { y -> positions.first.y + y >= 0 && positions.first.y + y <= world.height }.forEach { y ->
                     addChunkJob(positions.first.x + x, positions.first.y + y, positions.first.z + z) { section, chunk, world, pos, sectionX, sectionY, sectionZ ->
                         actions.forEach {
                             val empty = ChunkSection.isEmpty(section)

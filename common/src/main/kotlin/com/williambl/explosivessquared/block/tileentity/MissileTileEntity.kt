@@ -1,26 +1,27 @@
 package com.williambl.explosivessquared.block.tileentity
 
-import com.williambl.explosivessquared.objectholders.TileEntityTypeHolder
+import com.williambl.explosivessquared.ExplosivesSquared
+import net.minecraft.block.BlockState
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 
-class MissileTileEntity(var target: Vec3d) : TileEntity(TileEntityTypeHolder.missile) {
+class MissileTileEntity(var target: Vector3d) : TileEntity(ExplosivesSquared.missile.get()) {
 
-    constructor() : this(Vec3d.ZERO)
+    constructor() : this(Vector3d.ZERO)
 
-    override fun serializeNBT(): CompoundNBT {
-        val tag = super.serializeNBT()
+    override fun write(tag: CompoundNBT): CompoundNBT {
+        super.write(tag)
         tag.putDouble("TargetX", target.x)
         tag.putDouble("TargetY", target.y)
         tag.putDouble("TargetZ", target.z)
         return tag
     }
 
-    override fun deserializeNBT(nbt: CompoundNBT?) {
-        super.deserializeNBT(nbt)
+    override fun read(state: BlockState, nbt: CompoundNBT?) {
+        super.read(state, nbt)
         if (nbt != null) {
-            target = Vec3d(nbt.getDouble("TargetX"), nbt.getDouble("TargetY"), nbt.getDouble("TargetZ"))
+            target = Vector3d(nbt.getDouble("TargetX"), nbt.getDouble("TargetY"), nbt.getDouble("TargetZ"))
         }
     }
 }

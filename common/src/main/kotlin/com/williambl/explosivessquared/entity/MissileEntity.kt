@@ -1,6 +1,7 @@
 package com.williambl.explosivessquared.entity
 
 import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.PlatformUtils
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.MoverType
@@ -10,17 +11,15 @@ import net.minecraft.network.datasync.DataParameter
 import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.particles.ParticleTypes
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
-import net.minecraftforge.fml.network.NetworkHooks
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, var target: Vector3d) : ExplosiveEntity(type, worldIn) {
 
-open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, var target: Vec3d) : ExplosiveEntity(type, worldIn) {
-
-    constructor(type: EntityType<out MissileEntity>, world: World) : this(type, world, Vec3d.ZERO)
+    constructor(type: EntityType<out MissileEntity>, world: World) : this(type, world, Vector3d.ZERO)
 
     companion object {
         private val FUSE = EntityDataManager.createKey(MissileEntity::class.java, DataSerializers.VARINT)
@@ -32,7 +31,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
     private val horizontalSpeedDataManager: Float
         get() = this.dataManager.get(HORIZONTAL_SPEED)
 
-    constructor(type: EntityType<out MissileEntity>, worldIn: World, x: Double, y: Double, z: Double, igniter: LivingEntity?, target: Vec3d) : this(type, worldIn) {
+    constructor(type: EntityType<out MissileEntity>, worldIn: World, x: Double, y: Double, z: Double, igniter: LivingEntity?, target: Vector3d) : this(type, worldIn) {
         this.setPosition(x, y, z)
         this.motion = getMotionToReachTarget(target)
         this.setFuse(40)
@@ -65,15 +64,15 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
             this.setRotation(atan2(motion.x, motion.z).toFloat(), atan2(sqrt(motion.x.pow(2) + motion.z.pow(2)), motion.y).toFloat())
 
         setFuse(getFuse() - 1)
-        if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vec3d.ZERO)) {
+        if (this.getFuse() <= 0 && (positionVec.distanceTo(target) < 5.0 || motion == Vector3d.ZERO)) {
             this.remove()
             if (!this.world.isRemote) {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.explodeFunction?.invoke(this)
+                ExplosivesSquared.getTypeFor(type).explodeFunction.invoke(this)
             } else {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.clientFunction?.invoke(this)
+                ExplosivesSquared.getTypeFor(type).clientFunction.invoke(this)
             }
         } else {
-            this.handleWaterMovement()
+            this.func_233566_aG_()
             this.world.addParticle(ParticleTypes.SMOKE, this.posX, this.posY + 0.5, this.posZ, 0.0, 0.0, 0.0)
         }
 
@@ -88,7 +87,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
 
     override fun readAdditional(compound: CompoundNBT) {
         super.readAdditional(compound)
-        target = Vec3d(compound.getDouble("TargetX"), compound.getDouble("TargetY"), compound.getDouble("TargetZ"))
+        target = Vector3d(compound.getDouble("TargetX"), compound.getDouble("TargetY"), compound.getDouble("TargetZ"))
     }
 
     override fun notifyDataManagerChange(key: DataParameter<*>) {
@@ -102,32 +101,32 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         return this.horizontalSpeed.toDouble()
     }
 
-    fun getHorizontalMotion(target: Vec3d): Vec3d {
+    fun getHorizontalMotion(target: Vector3d): Vector3d {
         val horizontalPosition = positionVec.mul(1.0, 0.0, 1.0)
         val horizontalTarget = target.mul(1.0, 0.0, 1.0)
         return horizontalTarget.subtract(horizontalPosition).normalize().mul(getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble(), getHorizontalSpeedAsDouble())
     }
 
-    fun getTimeToTarget(target: Vec3d): Double {
+    fun getTimeToTarget(target: Vector3d): Double {
         val horizontalPosition = positionVec.mul(1.0, 0.0, 1.0)
         val horizontalTarget = target.mul(1.0, 0.0, 1.0)
         return horizontalPosition.distanceTo(horizontalTarget) / getHorizontalSpeedAsDouble()
     }
 
-    fun getVerticalMotion(time: Double, target: Vec3d): Vec3d {
+    fun getVerticalMotion(time: Double, target: Vector3d): Vector3d {
         if (time == 0.0)
-            return Vec3d.ZERO
+            return Vector3d.ZERO
         val verticalDistance = target.y - positionVec.y
-        return Vec3d(0.0, (verticalDistance / time) - ((-0.04 * time) / 2), 0.0)
+        return Vector3d(0.0, (verticalDistance / time) - ((-0.04 * time) / 2), 0.0)
     }
 
-    fun getMotionToReachTarget(target: Vec3d): Vec3d {
+    fun getMotionToReachTarget(target: Vector3d): Vector3d {
         val time = getTimeToTarget(target)
         return getHorizontalMotion(target).add(getVerticalMotion(time, target))
     }
 
     override fun createSpawnPacket(): IPacket<*> {
-        return NetworkHooks.getEntitySpawningPacket(this)
+        return PlatformUtils.createSpawnPacket(this)
     }
 
 }

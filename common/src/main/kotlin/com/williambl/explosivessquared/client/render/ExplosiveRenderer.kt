@@ -8,7 +8,6 @@ import net.minecraft.block.BlockRenderType
 import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Vector3f
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.texture.AtlasTexture
@@ -16,7 +15,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraftforge.client.model.data.EmptyModelData
+import net.minecraft.util.math.vector.Vector3f
 
 class ExplosiveRenderer(renderManager: EntityRendererManager) : EntityRenderer<ExplosiveEntity>(renderManager) {
 
@@ -26,16 +25,15 @@ class ExplosiveRenderer(renderManager: EntityRendererManager) : EntityRenderer<E
 
     override fun render(entity: ExplosiveEntity, entityYaw: Float, partialTicks: Float, matrixStack: MatrixStack, buffer: IRenderTypeBuffer, packedLight: Int) {
         val blockstate =
-                if (entity is MissileEntity)
-                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path.dropLast(8)]?.missileBlock?.defaultState
-                            ?: Blocks.AIR.defaultState
-                else
-                    ExplosivesSquared.explosiveMap[entity.type.registryName!!.path]?.block?.defaultState
-                            ?: Blocks.AIR.defaultState
+                ExplosivesSquared.getTypeFor(entity.type).run {
+                    if (entity is MissileEntity)
+                        missileBlock
+                    else block
+                }.defaultState
 
         if (blockstate.renderType == BlockRenderType.MODEL) {
             val world = entity.world
-            if (blockstate !== world.getBlockState(BlockPos(entity)) && blockstate.renderType != BlockRenderType.INVISIBLE) {
+            if (blockstate !== world.getBlockState(entity.position) && blockstate.renderType != BlockRenderType.INVISIBLE) {
                 matrixStack.push()
                 matrixStack.translate(0.0, 0.5, 0.0)
                 if (entity.getFuse().toFloat() - partialTicks + 1.0f < 10.0f) {
@@ -49,7 +47,7 @@ class ExplosiveRenderer(renderManager: EntityRendererManager) : EntityRenderer<E
                 matrixStack.rotate(Vector3f.YP.rotation(entityYaw))
                 matrixStack.rotate(Vector3f.XP.rotation(MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch)))
                 matrixStack.translate(-0.5, -0.5, -0.5)
-                Minecraft.getInstance().blockRendererDispatcher.renderBlock(blockstate, matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE)
+                Minecraft.getInstance().blockRendererDispatcher.renderBlock(blockstate, matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY)
                 matrixStack.pop()
                 super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight)
             }

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.williambl.explosivessquared.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ThreadTaskExecutorAccessor"
+  ],
+  "client": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -3,7 +3,7 @@ package com.williambl.explosivessquared.util
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.World
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -21,7 +21,7 @@ fun getLengthOfChord(radius: Int, distanceFromCentre: Int): Int {
 }
 
 fun BlockPos.getAllInSphere(radius: Int): Sequence<BlockPos> {
-    val mPos = BlockPos.Mutable(this)
+    val mPos = BlockPos.Mutable().setPos(this)
     return getAllInLine(radius).map { y -> getAllInCircle(getLengthOfChord(radius, y)).map { xz -> mPos.setPos(this.x + xz.first, this.y + y, this.z + xz.second) } }.flatten()
 }
 
@@ -57,7 +57,7 @@ fun World.getEntitiesInSphere(pos: BlockPos, radius: Double, excluding: Entity? 
     return this.getEntitiesInAABBexcluding(
             excluding,
             AxisAlignedBB(pos.add(-0.5, -0.5, -0.5)).grow(radius)
-    ) { it.getDistanceSq(Vec3d(pos)) < radius.pow(2) && predicate(it) }
+    ) { it.getDistanceSq(Vector3d.copyCentered(pos)) < radius.pow(2) && predicate(it) }
 }
 
 fun BlockPos.getAllInColumn(radius: Int): Sequence<BlockPos> {
@@ -69,10 +69,10 @@ fun BlockPos.getAllInColumn(radius: Int): Sequence<BlockPos> {
 
 fun World.canExplosionDestroy(explosionRadius: Int, explosionCentre: BlockPos, pos: BlockPos, exploder: Entity): Boolean {
     var f: Double = explosionRadius * (0.7f + this.rand.nextFloat() * 0.6f) - 0.225 * sqrt(explosionCentre.distanceSq(pos))
-    val blockstate = this.world.getBlockState(pos)
-    val ifluidstate = this.world.getFluidState(pos)
-    if (!blockstate.isAir(this.world, pos) || !ifluidstate.isEmpty) {
-        val f2 = blockstate.getExplosionResistance(this.world, pos, exploder, null).coerceAtLeast(ifluidstate.getExplosionResistance(this.world, pos, exploder, null))
+    val blockstate = this.getBlockState(pos)
+    val ifluidstate = this.getFluidState(pos)
+    if (!blockstate.isAir || !ifluidstate.isEmpty) {
+        val f2 = blockstate.block.explosionResistance.coerceAtLeast(ifluidstate.explosionResistance)
         f -= (f2 + 0.3f) * 0.3f
     }
 

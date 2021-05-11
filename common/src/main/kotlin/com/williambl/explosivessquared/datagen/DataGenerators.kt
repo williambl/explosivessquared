@@ -1,5 +1,5 @@
 package com.williambl.explosivessquared.datagen
-
+/*
 import com.google.gson.GsonBuilder
 import com.williambl.explosivessquared.ExplosivesSquared
 import com.williambl.explosivessquared.objectholders.ItemHolder
@@ -135,4 +135,4 @@ class LootTables(val generator: DataGenerator) : LootTableProvider(generator) {
     override fun getName(): String {
         return "Explosives Squared Loot Tables"
     }
-}
+}*/

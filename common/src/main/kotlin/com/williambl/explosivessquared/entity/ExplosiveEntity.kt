@@ -1,6 +1,7 @@
 package com.williambl.explosivessquared.entity
 
 import com.williambl.explosivessquared.ExplosivesSquared
+import com.williambl.explosivessquared.PlatformUtils
 import net.minecraft.entity.*
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.IPacket
@@ -9,10 +10,8 @@ import net.minecraft.network.datasync.DataSerializers
 import net.minecraft.network.datasync.EntityDataManager
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.world.World
-import net.minecraftforge.fml.network.NetworkHooks
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World) : Entity(type, worldIn) {
 
@@ -28,7 +27,7 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
 
     init {
         this.preventEntitySpawning = true
-        fuse = ExplosivesSquared.explosiveMap[type.registryName!!.path]?.fuse ?: 80
+        fuse = ExplosivesSquared.getTypeFor(type).fuse
     }
 
     constructor(type: EntityType<out ExplosiveEntity>, worldIn: World, x: Double, y: Double, z: Double, igniter: LivingEntity?) : this(type, worldIn) {
@@ -72,12 +71,12 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
         if (this.fuse <= 0) {
             this.remove()
             if (!this.world.isRemote) {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path]?.explodeFunction?.invoke(this)
+                ExplosivesSquared.getTypeFor(type).explodeFunction.invoke(this)
             } else {
-                ExplosivesSquared.explosiveMap[type.registryName!!.path.replace("_missile", "")]?.clientFunction?.invoke(this)
+                ExplosivesSquared.getTypeFor(type).clientFunction.invoke(this)
             }
         } else {
-            this.handleWaterMovement()
+            this.func_233566_aG_()
             this.world.addParticle(ParticleTypes.SMOKE, this.posX, this.posY + 0.5, this.posZ, 0.0, 0.0, 0.0)
         }
 
@@ -112,7 +111,6 @@ open class ExplosiveEntity(type: EntityType<out ExplosiveEntity>, worldIn: World
     }
 
     override fun createSpawnPacket(): IPacket<*> {
-        return NetworkHooks.getEntitySpawningPacket(this)
+        return PlatformUtils.createSpawnPacket(this)
     }
-
 }
