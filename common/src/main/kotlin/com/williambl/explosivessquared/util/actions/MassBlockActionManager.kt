@@ -35,7 +35,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
                             val bs = if (empty) Blocks.AIR.defaultState else section!!.getBlockState(sectionX, sectionY, sectionZ)
                             if (filters.all { it(world, pos, bs) } && it.matches(world, pos, bs)) {
                                 val result = it.process(world, pos)
-                                if (empty) {
+                                if (empty && result != Blocks.AIR.defaultState) {
                                     val newSection = ChunkSection(pos.y shr 4 shl 4)
                                     chunk.sections[pos.y shr 4] = newSection
                                     newSection.setBlockState(sectionX, sectionY, sectionZ, result)
@@ -51,7 +51,7 @@ class MassBlockActionManager(world: World, positions: BlockPosSeq3D): BlockActio
 
         val executor = (world as ServerWorld).server
         chunkJobs.forEach { chunkJobCollection ->
-            executor.enqueue(TickDelayedTask(world.server.tickCounter) {
+            executor.enqueue(TickDelayedTask(world.server.tickCounter+7) {
                 val chunk =
                         world.getChunk(ChunkPos.getX(chunkJobCollection.key), ChunkPos.getZ(chunkJobCollection.key))
                 val sections = chunk.sections
