@@ -30,6 +30,9 @@ public final class PlatformUtilsImpl {
         buf.writeDouble(entity.getPosZ());
         buf.writeFloat(entity.getPitchYaw().y);
         buf.writeFloat(entity.getPitchYaw().x);
+        buf.writeDouble(entity.getMotion().x);
+        buf.writeDouble(entity.getMotion().y);
+        buf.writeDouble(entity.getMotion().z);
         return ServerPlayNetworking.createS2CPacket(new ResourceLocation("explosivessquared:spawn"), buf);
     }
 }

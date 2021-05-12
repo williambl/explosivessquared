@@ -16,13 +16,17 @@ public class ExplosivesSquaredClientFabric implements ClientModInitializer {
         ExplosivesSquaredClient.INSTANCE.initClient();
         ClientPlayNetworking.registerGlobalReceiver(new ResourceLocation("explosivessquared:spawn"), (client, handler, buf, responseSender) -> {
             if (client.world != null) {
+                buf.retain();
                 client.enqueue(() -> {
                     Entity entity = Registry.ENTITY_TYPE.getByValue(buf.readVarInt()).create(client.world);
                     if (entity != null) {
-                        client.world.addEntity(buf.readInt(), entity);
+                        int id = buf.readInt();
                         entity.setUniqueId(buf.readUniqueId());
                         entity.setPositionAndRotation(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readFloat(), buf.readFloat());
+                        entity.setMotion(buf.readDouble(), buf.readDouble(), buf.readDouble());
+                        client.world.addEntity(id, entity);
                     }
+                    buf.release();
                 });
             }
         });
