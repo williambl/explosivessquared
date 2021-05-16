@@ -2,6 +2,8 @@ package com.williambl.explosivessquared.entity
 
 import com.williambl.explosivessquared.ExplosivesSquared
 import com.williambl.explosivessquared.PlatformUtils
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.MoverType
@@ -97,6 +99,12 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         }
     }
 
+
+    @Environment(EnvType.CLIENT)
+    override fun isInRangeToRenderDist(distance: Double): Boolean {
+        return distance < 4096 // Same distance as firework rocket
+    }
+
     fun getHorizontalSpeedAsDouble(): Double {
         return this.horizontalSpeed.toDouble()
     }
@@ -117,7 +125,7 @@ open class MissileEntity(type: EntityType<out MissileEntity>, worldIn: World, va
         if (time == 0.0)
             return Vector3d.ZERO
         val verticalDistance = target.y - positionVec.y
-        return Vector3d(0.0, (verticalDistance / time) - ((-0.04 * time) / 2), 0.0)
+        return Vector3d(0.0, (verticalDistance / time) - (-0.02 * time), 0.0)
     }
 
     fun getMotionToReachTarget(target: Vector3d): Vector3d {
