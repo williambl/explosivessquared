@@ -1,6 +1,8 @@
 package com.williambl.explosivessquared.util
 
+import com.williambl.explosivessquared.ExplosivesSquared
 import net.minecraft.entity.Entity
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.vector.Vector3d
@@ -78,3 +80,5 @@ fun World.canExplosionDestroy(explosionRadius: Int, explosionCentre: BlockPos, p
 
     return f > 0.0f
 }
+
+fun id(path: String): ResourceLocation = ResourceLocation(ExplosivesSquared.modid, path)

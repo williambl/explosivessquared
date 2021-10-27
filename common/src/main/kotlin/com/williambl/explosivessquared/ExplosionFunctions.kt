@@ -281,8 +281,8 @@ fun netherExplosion(radius: Double): ExplosionFunction {
 fun glassingRay(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
-                //.addAction(BlockMappingAction(BlockTags.SAND, BlockTags.GLASS))
-                //.addAction(BlockMappingAction(BlockTags.GRAVEL, BlockTags.BASE_STONE_OVERWORLD))
+                .addAction(BlockMappingAction(BlockTags.SAND, glassTag))
+                .addAction(BlockMappingAction(gravelTag, BlockTags.BASE_STONE_OVERWORLD))
                 .addAction(BlockMappingAction(Blocks.CLAY, Blocks.TERRACOTTA))
                 .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
                 .addAction(BlockMappingAction(Blocks.GRASS_PATH, Blocks.COARSE_DIRT))
