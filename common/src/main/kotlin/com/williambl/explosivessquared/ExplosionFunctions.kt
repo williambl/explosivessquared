@@ -84,7 +84,7 @@ fun repellingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
-                    Blocks.AIR.defaultState
+                    blockState
                 })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
@@ -112,7 +112,7 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
                         fallingEntity.setMotion(velocityVector.x, velocityVector.y, velocityVector.z)
                         world.addEntity(fallingEntity)
                     }
-                    Blocks.AIR.defaultState
+                    blockState
                 })
                 .start()
         it.world.getEntitiesInSphere(it.position, radius, it)
@@ -282,7 +282,7 @@ fun glassingRay(radius: Double): ExplosionFunction {
     return {
         BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
                 //.addAction(BlockMappingAction(BlockTags.SAND, BlockTags.GLASS))
-                //.addAction(BlockMappingAction(BlockTags.GRAVEL, BlockTags.STONE))
+                //.addAction(BlockMappingAction(BlockTags.GRAVEL, BlockTags.BASE_STONE_OVERWORLD))
                 .addAction(BlockMappingAction(Blocks.CLAY, Blocks.TERRACOTTA))
                 .addAction(BlockMappingAction(isOfType<SpreadableSnowyDirtBlock>(), Blocks.DIRT))
                 .addAction(BlockMappingAction(Blocks.GRASS_PATH, Blocks.COARSE_DIRT))
