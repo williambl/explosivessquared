@@ -1,5 +1,6 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.entity.AntigravityBlockEntity
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.util.*
@@ -8,12 +9,15 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.IGrowable
 import net.minecraft.block.SpreadableSnowyDirtBlock
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.item.FallingBlockEntity
 import net.minecraft.entity.item.TNTEntity
 import net.minecraft.entity.monster.MagmaCubeEntity
 import net.minecraft.entity.monster.SlimeEntity
 import net.minecraft.entity.monster.piglin.PiglinEntity
 import net.minecraft.entity.passive.PigEntity
+import net.minecraft.potion.EffectInstance
+import net.minecraft.potion.Effects
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.DamageSource
@@ -125,13 +129,30 @@ fun attractingExplosion(radius: Double): ExplosionFunction {
     }
 }
 
+fun antiGravityExplosion(radius: Double): ExplosionFunction {
+    return {
+        BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
+            .addFilter(isNotAir)
+            .addAction(BlockFunctionAction(isNotUnbreakable) { world, pos ->
+                val blockState = world.getBlockState(pos)
+                val fallingEntity = AntigravityBlockEntity(world, pos, blockState)
+                world.addEntity(fallingEntity)
+                Blocks.AIR.defaultState
+            })
+            .start()
+        it.world.getEntitiesInSphere(it.position, radius, it)
+            .filterIsInstance(LivingEntity::class.java)
+            .forEach { entity ->
+                entity.addPotionEffect(EffectInstance(Effects.LEVITATION, 100))
+            }
+    }
+}
+
 fun napalmExplosion(radius: Double): ExplosionFunction {
     return {
         it.world.createExplosion(it, it.posX, it.posY, it.posZ, (radius / 2).toFloat(), Explosion.Mode.DESTROY)
         BlockActionManager(it.world, it.position.getAllInSphereSeq(radius.toInt()))
-                .addAction(BlockFunctionAction(isAir, { world, pos ->
-                    Blocks.FIRE.defaultState
-                }))
+                .addAction(BlockFunctionAction(isAir) { _, _ -> Blocks.FIRE.defaultState })
                 .start()
     }
 }

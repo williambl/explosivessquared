@@ -1,13 +1,12 @@
 package com.williambl.explosivessquared
 
+import com.williambl.explosivessquared.client.render.AntiGravityBlockRenderer
 import com.williambl.explosivessquared.client.render.ExplosiveRenderer
 import com.williambl.explosivessquared.client.render.GlassingRayBeamRenderer
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import me.shedaniel.architectury.registry.RenderTypes
 import me.shedaniel.architectury.registry.entity.EntityRenderers
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.RenderTypeLookup
-import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.entity.EntityType
 
 object ExplosivesSquaredClient {
@@ -24,6 +23,7 @@ object ExplosivesSquaredClient {
             }
         }
         EntityRenderers.register(ExplosivesSquared.glassingRayBeam.get(), ::GlassingRayBeamRenderer)
+        EntityRenderers.register(ExplosivesSquared.antigravityBlock.get(), ::AntiGravityBlockRenderer)
     }
 
 }

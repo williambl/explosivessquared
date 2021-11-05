@@ -1,6 +1,7 @@
 package com.williambl.explosivessquared
 
 import com.williambl.explosivessquared.block.tileentity.MissileTileEntity
+import com.williambl.explosivessquared.entity.AntigravityBlockEntity
 import com.williambl.explosivessquared.entity.ExplosiveEntity
 import com.williambl.explosivessquared.entity.GlassingRayBeamEntity
 import com.williambl.explosivessquared.item.TargeterItem
@@ -36,6 +37,9 @@ object ExplosivesSquared {
     }
     val glassingRayBeam = ENTITY_TYPES.register(ResourceLocation("explosivessquared:glassing_ray_beam")) {
         EntityType.Builder.create(::GlassingRayBeamEntity, EntityClassification.MISC).build("glassing_ray_beam")
+    }
+    val antigravityBlock = ENTITY_TYPES.register(ResourceLocation("explosivessquared:antigravity_block")) {
+        EntityType.Builder.create(::AntigravityBlockEntity, EntityClassification.MISC).build("antigravity_block")
     }
     val missile = TILE_ENTITY_TYPES.register(ResourceLocation("explosivessquared:missile")) {
         TileEntityType.Builder.create({ MissileTileEntity() }, *explosives.mapNotNull { if (it.shouldCreateMissile) it.missileBlock else null }.toTypedArray()).build(null)
@@ -87,7 +91,10 @@ object ExplosivesSquared {
                     .setExplodeFunction(removeAllBlocks(128.0)),
             ExplosiveType(ResourceLocation(modid, "mini_nuke"))
                     .setExplodeFunction(removeAllBlocks(64.0))
-                    .setTexture(ResourceLocation("minecraft:block/tnt_side"))
+                .setTexture(ResourceLocation("minecraft:block/tnt_side")),
+            ExplosiveType(ResourceLocation(modid, "antigravity"))
+                .setExplodeFunction(antiGravityExplosion(8.0))
+                .setTexture(ResourceLocation("minecraft:block/cobweb"))
     )
 
     lateinit var explosiveMap: Map<ResourceLocation, ExplosiveType>
